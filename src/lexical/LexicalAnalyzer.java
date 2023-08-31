@@ -1,22 +1,19 @@
 package lexical;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class LexicalAnalyzer {
 
-	private static String PATH = "C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\lexical\\file.txt";
+//	private static String PATH = "file.txt";
+	private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\lexical\\file.txt";
 
 	public static void main(String[] args) {
-		
+
 		try {
 			File file = new File(PATH);
 			Scanner scanner = new Scanner(file);
+			int flagComentario = 0;
 
 			// while pra pegar linhas
 			while (scanner.hasNextLine()) {
@@ -24,27 +21,45 @@ public class LexicalAnalyzer {
 				// for pra pegar caracteres
 				String line = scanner.nextLine();
 				for (int i =0; i<line.length(); i++) {
-					char caractere = line.charAt(i);
-					System.out.println(caractere);
+					Character caractere = line.charAt(i);
+
+					if(flagComentario == 1) {
+						while (!caractere.equals('}')) {
+							i++;
+							if(i >= line.length()){
+								break;
+							}
+							caractere = line.charAt(i);
+							if (caractere.equals('}')) {
+								flagComentario = 0;
+							}
+						}
+					}
+
+					if(caractere.equals('{') || caractere.equals(' ')) {
+						if(caractere.equals('{')) {
+							while (!caractere.equals('}')) {
+								i++;
+								if(i >= line.length()){
+									flagComentario = 1;
+									break;
+								}
+								caractere = line.charAt(i);
+								if (caractere.equals('}')) {
+									flagComentario = 0;
+								}
+							}
+						}
+						if (caractere.equals(' ')) {
+							break;
+						}
+					}
+
+					// TODO pega token e insere na lista
 				}
 			}
-
-//            while(line != null) {
-//            	while(line == "{" || line == " " && (line = file.readLine()) != null) {
-//            		if(line == "}") {
-//            			while(line != "}" && (line = file.readLine()) != null) {
-//            				readLine(file);
-//            				readLine(file);
-//            			}
-//            		}
-//            	}
-//            }
-
-//            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+			System.out.println(e.getMessage());
         }
-
-
 	}
 }
