@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class LexicalAnalyzer {
 
 //	private static String PATH = "file.txt";
-	private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\lexical\\file.txt";
+	private static final String PATH ="C:\\Users\\gbidu\\OneDrive\\Documentos\\Programa.txt";
 
 	public static void main(String[] args) {
 
