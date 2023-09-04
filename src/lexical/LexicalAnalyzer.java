@@ -7,7 +7,7 @@ public class LexicalAnalyzer {
 
 //	private static String PATH = "file.txt";
 	private static final String PATH ="C:\\Users\\gbidu\\OneDrive\\Documentos\\Programa.txt";
-
+	Token token = new Token();
 	public static void main(String[] args) {
 
 		try {
@@ -55,7 +55,7 @@ public class LexicalAnalyzer {
 						}
 					}
 
-					// TODO pega token e insere na lista
+					//token.GetToken();
 				}
 			}
         } catch (Exception e) {
