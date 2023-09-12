@@ -53,6 +53,7 @@ public class LexicalAnalyzer {
 				}
 			}
 
+			// TODO fechar arquivo
 
         } catch (Exception e) {
 			System.out.println(e.getMessage());
