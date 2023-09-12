@@ -44,10 +44,11 @@ public class LexicalAnalyzer {
 						}
 					}
 					// pega token e insere na lista
-					i = pegaToken(line, i);
+					i = pegaToken(i);
 
-					if(i>= line.length()) {
+					if(i>= line.length() && scanner.hasNextLine()) {
 						i = 0;
+						line = scanner.nextLine();
 					}
 				}
 			}
@@ -72,29 +73,34 @@ public class LexicalAnalyzer {
 		if(i >= line.length()) {
 			line = scanner.nextLine();
 			i = 0;
-		} else {
-			i++;
 		}
 		return i;
 	}
 
-	private int pegaToken(String line, int i) {
-		if(Character.isDigit(line.charAt(i))) {
+	private int pegaToken(int i) {
+		Character character = line.charAt(i);
+		if(Character.isDigit(character)) {
 			// trata digito
-			i = trataDigito(line,i);
+			i = trataDigito(i);
 
-		} else if(Character.isLetter(line.charAt(i))) {
+		} else if(Character.isLetter(character)) {
 			// trata letra
-			i = trataLetra(line,i);
+			i = trataLetra(i);
 
-		} else if(caractereIn(operadoresAritimeticos,line.charAt(i))) {
-			// TODO trata operador aritmetico
+		} else if (character.equals(':')) {
+			// trata atribuicao
+			i = trataAtibuicao(i);
 
-		} else if(caractereIn(operadoresRelacionais,line.charAt(i))) {
+		} else if(caractereIn(operadoresAritimeticos,character)) {
+			// trata operador aritmetico
+			i = trataAritmetico(i);
+
+		} else if(caractereIn(operadoresRelacionais,character)) {
 			// TODO trata operador relacional
 
-		} else if(caractereIn(pontuacoes,line.charAt(i))) {
-			// TODO trata pontuacao
+		} else if(caractereIn(pontuacoes,character)) {
+			// trata pontuacao
+			i = trataPontuacao(i);
 
 		} else {
 			// TODO erro
@@ -102,7 +108,7 @@ public class LexicalAnalyzer {
 		return i;
 	}
 
-	private int trataDigito(String line, int i) {
+	private int trataDigito(int i) {
 		Character character = line.charAt(i);
 		String numero = String.valueOf(character);
 		i++;
@@ -117,7 +123,7 @@ public class LexicalAnalyzer {
 		return i;
 	}
 
-	private int trataLetra(String line, int i) {
+	private int trataLetra(int i) {
 		Character character = line.charAt(i);
 		String id = String.valueOf(character);
 		i++;
@@ -222,6 +228,75 @@ public class LexicalAnalyzer {
 		return i;
 	}
 
+	private int trataAtibuicao(int i) {
+		i++;
+		Character character = line.charAt(i);
+
+		Token token;
+		if(character.equals('=')) {
+			token = new Token("satribuicao",":=");
+			tokens.add(token);
+			i++;
+		} else {
+			token = new Token("sdoispontos",":");
+			tokens.add(token);
+		}
+
+		return i;
+	}
+
+	private int trataAritmetico(int i) {
+		Character character = line.charAt(i);
+
+		Token token = new Token();
+		token.setLexema(String.valueOf(character));
+
+		switch (character) {
+			case '+' -> {
+				token.setSimbolo("smais");
+			}
+			case '-' -> {
+				token.setSimbolo("smenos");
+			}
+			case '*' -> {
+				token.setSimbolo("smult");
+			}
+		}
+		tokens.add(token);
+		i++;
+
+		return i;
+	}
+
+	private int trataPontuacao(int i) {
+		Character character = line.charAt(i);
+
+		Token token = new Token();
+		token.setLexema(String.valueOf(character));
+
+		switch (character) {
+			case '.' -> {
+				token.setSimbolo("sponto");
+			}
+			case ';' -> {
+				token.setSimbolo("sponto_virgula");
+			}
+			case ',' -> {
+				token.setSimbolo("svirgula");
+			}
+			case '(' -> {
+				token.setSimbolo("sabre_parenteses");
+			}
+			case ')' -> {
+				token.setSimbolo("sfecha_parenteses");
+			}
+		}
+		tokens.add(token);
+		i++;
+
+		return i;
+	}
+
 	private boolean caractereIn(Set<Character> lista, Character caractere) {
 		for(Character c : lista) {
 			if(c == caractere) {
@@ -230,6 +305,4 @@ public class LexicalAnalyzer {
 		}
 		return false;
 	}
-
-
 }

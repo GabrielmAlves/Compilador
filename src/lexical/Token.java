@@ -8,4 +8,22 @@ public class Token {
 		this.lexema = lexema;
 		this.simbolo = simbolo;
 	}
+
+	public Token() {}
+
+	public String getLexema() {
+		return lexema;
+	}
+
+	public void setLexema(String lexema) {
+		this.lexema = lexema;
+	}
+
+	public String getSimbolo() {
+		return simbolo;
+	}
+
+	public void setSimbolo(String simbolo) {
+		this.simbolo = simbolo;
+	}
 }
