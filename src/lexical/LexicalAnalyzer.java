@@ -96,7 +96,8 @@ public class LexicalAnalyzer {
 			i = trataAritmetico(i);
 
 		} else if(caractereIn(operadoresRelacionais,character)) {
-			// TODO trata operador relacional
+			// trata operador relacional
+			i = trataRelacional(i);
 
 		} else if(caractereIn(pontuacoes,character)) {
 			// trata pontuacao
@@ -264,6 +265,52 @@ public class LexicalAnalyzer {
 		}
 		tokens.add(token);
 		i++;
+
+		return i;
+	}
+
+	private int trataRelacional(int i) {
+		Character character = line.charAt(i);
+
+		Token token = new Token();
+
+		if (character.equals('!')) {
+			i++;
+			character = line.charAt(i);
+			if(character.equals('=')) {
+				token.setLexema("!=");
+				token.setSimbolo("sdif");
+				i++;
+			} else {
+				// TODO erro
+			}
+		} else if (character.equals('<')) {
+			i++;
+			character = line.charAt(i);
+			if (character.equals('=')) {
+				token.setLexema("<=");
+				token.setSimbolo("smenorig");
+				i++;
+			} else {
+				token.setLexema("<");
+				token.setSimbolo("smenor");
+			}
+		} else if (character.equals('>')) {
+			i++;
+			character = line.charAt(i);
+			if (character.equals('=')) {
+				token.setLexema(">=");
+				token.setSimbolo("smaiorig");
+				i++;
+			} else {
+				token.setLexema(">");
+				token.setSimbolo("smaior");
+			}
+		} else if (character.equals('=')) {
+			token.setLexema("=");
+			token.setSimbolo("sig");
+			i++;
+		}
 
 		return i;
 	}
