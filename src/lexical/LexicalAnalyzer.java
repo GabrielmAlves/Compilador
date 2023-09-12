@@ -121,7 +121,7 @@ public class LexicalAnalyzer {
 		String id = String.valueOf(character);
 		i++;
 		character = line.charAt(i);
-		while(Character.isLetter(character)) {
+		while(Character.isLetter(character) || Character.isDigit(character) || character.equals('_')) {
 			id = id + character;
 			i++;
 			character = line.charAt(i);
