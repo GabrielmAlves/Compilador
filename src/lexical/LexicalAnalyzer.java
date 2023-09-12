@@ -11,70 +11,71 @@ public class LexicalAnalyzer {
 	private static final Set<Character> operadoresRelacionais = new HashSet<>(Arrays.asList('!', '<', '>', '='));
 	private static final Set<Character> pontuacoes = new HashSet<>(Arrays.asList(';', ',', '(', ')', '.'));
 
+	private Scanner scanner;
+	private String line;
+	private final File file = new File(PATH);;
+
 	private List<Token> tokens = new ArrayList<>();
 
 	public void analyzer() {
 
 		try {
-			File file = new File(PATH);
-			Scanner scanner = new Scanner(file);
-			int flagComentario = 0;
+			scanner = new Scanner(file);
+			int i = 0;
+
+			if(scanner.hasNextLine()) {
+				line = scanner.nextLine();
+			}
 
 			// while pra pegar linhas
 			while (scanner.hasNextLine()) {
 
-				// for pra pegar caracteres
-				String line = scanner.nextLine();
-				for (int i =0; i<line.length(); i++) {
+				while (i<line.length()) {
 					Character caractere = line.charAt(i);
 
-					if(flagComentario == 1) {
-						while (!caractere.equals('}')) {
+					if (caractere.equals('{') || caractere.equals(' ')) {
+						if (caractere.equals('{')) {
+							i =	trataComentario(i);
+							caractere = line.charAt(i);
+						}
+						while (caractere.equals(' ')) {
 							i++;
-							if(i >= line.length()){
-								break;
-							}
 							caractere = line.charAt(i);
 						}
 					}
-
-					if(caractere.equals('{') || caractere.equals(' ')) {
-						if(caractere.equals('{')) {
-							while (!caractere.equals('}')) {
-								i++;
-								if(i >= line.length()){
-									flagComentario = 1;
-									break;
-								}
-								caractere = line.charAt(i);
-							}
-						}
-						if (caractere.equals(' ')) {
-							break;
-						}
-					}
-
-					// verifica se fechou o comentario
-					if(caractere.equals('}')) {
-						flagComentario = 0;
-						i++;
-						if(i >= line.length()) {
-							break;
-						}
-						caractere = line.charAt(i);
-					}
-
-					if(flagComentario == 1) {
-						break;
-					}
-
 					// pega token e insere na lista
 					i = pegaToken(line, i);
+
+					if(i>= line.length()) {
+						i = 0;
+					}
 				}
 			}
+
+
         } catch (Exception e) {
 			System.out.println(e.getMessage());
         }
+	}
+
+	private int trataComentario(int i) {
+		Character caractere = line.charAt(i);
+		while (!caractere.equals('}')) {
+			i++;
+			if(i >= line.length()) {
+				line = scanner.nextLine();
+				i = 0;
+			}
+			caractere = line.charAt(i);
+		}
+		i++;
+		if(i >= line.length()) {
+			line = scanner.nextLine();
+			i = 0;
+		} else {
+			i++;
+		}
+		return i;
 	}
 
 	private int pegaToken(String line, int i) {
