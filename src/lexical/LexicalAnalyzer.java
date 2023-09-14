@@ -6,7 +6,7 @@ import java.util.*;
 public class LexicalAnalyzer {
 
 //	private static String PATH = "file.txt";
-	private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\teste_1.txt";
+	private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\teste_10.txt";
 	private static final Set<Character> operadoresAritimeticos = new HashSet<>(Arrays.asList('+', '-', '*'));
 	private static final Set<Character> operadoresRelacionais = new HashSet<>(Arrays.asList('!', '<', '>', '='));
 	private static final Set<Character> pontuacoes = new HashSet<>(Arrays.asList(';', ',', '(', ')', '.'));
@@ -31,23 +31,30 @@ public class LexicalAnalyzer {
 		//	while ()
 
 				while (i<line.length() || scanner.hasNextLine()) {
-					if (line.length()==0) {
+					while (line.isBlank()) {
 						line = scanner.nextLine();
 					}
 					Character caractere = line.charAt(i);
 
-					if (caractere.equals('{') || caractere.equals(' ')) {
+					if (caractere.equals('{') || caractere.equals(' ') || caractere.equals('\t')) {
 						if (caractere.equals('{')) {
 							i =	trataComentario(i);
+							while(line.isBlank()) {
+								line = scanner.nextLine();
+							}
 							caractere = line.charAt(i);
 						}
-						while (caractere.equals(' ')) {
+						while (caractere.equals(' ') || caractere.equals('\t')) {
 							i++;
+							if(i>=line.length()) {
+								break;
+							}
 							caractere = line.charAt(i);
 						}
+					} else {
+						// pega token e insere na lista
+						i = pegaToken(i);
 					}
-					// pega token e insere na lista
-					i = pegaToken(i);
 
 					if(i>= line.length() && scanner.hasNextLine()) {
 						i = 0;
@@ -55,23 +62,32 @@ public class LexicalAnalyzer {
 					}
 				}
 
-
 				for (Token t : this.tokens){
 					System.out.println(t.getLexema() + " - " + t.getSimbolo() + "\n");
 				}
 			// TODO fechar arquivo
 
         } catch (Exception e) {
+			for (Token t : this.tokens){
+				System.out.println(t.getLexema() + " - " + t.getSimbolo() + "\n");
+			}
 			System.out.println(e.getMessage());
         }
 	}
 
-	private int trataComentario(int i) {
+	private int trataComentario(int i) throws Exception {
 		Character caractere = line.charAt(i);
 		while (!caractere.equals('}')) {
 			i++;
 			if(i >= line.length()) {
+				if(!scanner.hasNextLine()) {
+					throw new Exception("Comentario não foi fechado");
+				}
+
 				line = scanner.nextLine();
+				while (line.isBlank() && scanner.hasNextLine()) {
+					line = scanner.nextLine();
+				}
 				i = 0;
 			}
 			caractere = line.charAt(i);
@@ -112,6 +128,9 @@ public class LexicalAnalyzer {
 
 		} else {
 			// TODO erro
+			for (Token t : this.tokens){
+				System.out.println(t.getLexema() + " - " + t.getSimbolo() + "\n");
+			}
 			throw new Exception("Caracter inválido");
 		}
 		return i;
@@ -121,11 +140,13 @@ public class LexicalAnalyzer {
 		Character character = line.charAt(i);
 		String numero = String.valueOf(character);
 		i++;
-		character = line.charAt(i);
-		while(Character.isDigit(character)) {
-			numero = numero + character;
-			i++;
+		if(i<line.length()) {
 			character = line.charAt(i);
+			while(Character.isDigit(character)) {
+				numero = numero + character;
+				i++;
+				character = line.charAt(i);
+			}
 		}
 		Token token = new Token("snumero", numero);
 		this.tokens.add(token);
@@ -136,14 +157,16 @@ public class LexicalAnalyzer {
 		Character character = line.charAt(i);
 		String id = String.valueOf(character);
 		i++;
-		character = line.charAt(i);
-		while(Character.isLetter(character) || Character.isDigit(character) || character.equals('_')) {
-			id = id + character;
-			i++;
-			if (i >= line.length()) {
-				break;
-			}
+		if(i<line.length()) {
 			character = line.charAt(i);
+			while (Character.isLetter(character) || Character.isDigit(character) || character.equals('_')) {
+				id = id + character;
+				i++;
+				if (i >= line.length()) {
+					break;
+				}
+				character = line.charAt(i);
+			}
 		}
 
 		Token token;
@@ -294,6 +317,10 @@ public class LexicalAnalyzer {
 				i++;
 			} else {
 				// TODO erro
+
+				for (Token t : this.tokens){
+					System.out.println(t.getLexema() + " - " + t.getSimbolo() + "\n");
+				}
 				throw new Exception("Sem igual");
 			}
 		} else if (character.equals('<')) {
@@ -323,6 +350,7 @@ public class LexicalAnalyzer {
 			token.setSimbolo("sig");
 			i++;
 		}
+		tokens.add(token);
 
 		return i;
 	}
