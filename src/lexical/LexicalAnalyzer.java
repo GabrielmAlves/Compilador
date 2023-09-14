@@ -13,160 +13,111 @@ public class LexicalAnalyzer {
 
 	private Scanner scanner;
 	private String line;
-	private final File file = new File(PATH);;
-
+	private int i;	// ponteiro da posição de cada linha/string
+	private Character character;
 	private List<Token> tokens = new ArrayList<>();
 
 	public void analyzer() {
 
 		try {
+			File file = new File(PATH);
 			scanner = new Scanner(file);
-			int i = 0;
 
-			if(scanner.hasNextLine()) {
-				line = scanner.nextLine();
+			if (!scanner.hasNextLine()) {
+				throw new Exception("Arquivo vazio");
 			}
 
-			// while pra pegar linhas
-		//	while ()
+			i=-1;
+			pegaLinha();
+			character = pegaCaracter();
+			while (scanner.hasNextLine() || fimDeLinha()) { // enquanto não chegar no fim do arquivo
 
-				while (i<line.length() || scanner.hasNextLine()) {
-					while (line.isBlank()) {
-						line = scanner.nextLine();
+				if (character.equals('{') || character.equals(' ') || character.equals('\t')) {
+					if (character.equals('{')) {
+						trataComentario(i);
 					}
-					Character caractere = line.charAt(i);
-
-					if (caractere.equals('{') || caractere.equals(' ') || caractere.equals('\t')) {
-						if (caractere.equals('{')) {
-							i =	trataComentario(i);
-							while(line.isBlank()) {
-								line = scanner.nextLine();
-							}
-							caractere = line.charAt(i);
-						}
-						while (caractere.equals(' ') || caractere.equals('\t')) {
-							i++;
-							if(i>=line.length()) {
-								break;
-							}
-							caractere = line.charAt(i);
-						}
-					} else {
-						// pega token e insere na lista
-						i = pegaToken(i);
+					while (character.equals(' ') || character.equals('\t')) {
+						character = pegaCaracter();
 					}
-
-					if(i>= line.length() && scanner.hasNextLine()) {
-						i = 0;
-						line = scanner.nextLine();
-					}
+				} else {
+					// pega token e insere na lista
+					pegaToken();
 				}
+			}
 
-				for (Token t : this.tokens){
-					System.out.println(t.getLexema() + " - " + t.getSimbolo() + "\n");
-				}
-			// TODO fechar arquivo
+			System.out.println("\nLISTA DE TOKENS\n");
+			for (Token t : this.tokens){
+				System.out.println(t.getLexema() + " - " + t.getSimbolo());
+			}
+			System.out.println();
 
         } catch (Exception e) {
+			System.out.println("\nLISTA DE TOKENS\n");
 			for (Token t : this.tokens){
-				System.out.println(t.getLexema() + " - " + t.getSimbolo() + "\n");
+				System.out.println(t.getLexema() + " - " + t.getSimbolo());
 			}
+			System.out.println();
 			System.out.println(e.getMessage());
         }
 	}
 
-	private int trataComentario(int i) throws Exception {
-		Character caractere = line.charAt(i);
-		while (!caractere.equals('}')) {
-			i++;
-			if(i >= line.length()) {
-				if(!scanner.hasNextLine()) {
-					throw new Exception("Comentario não foi fechado");
-				}
-
-				line = scanner.nextLine();
-				while (line.isBlank() && scanner.hasNextLine()) {
-					line = scanner.nextLine();
-				}
-				i = 0;
-			}
-			caractere = line.charAt(i);
+	private void trataComentario(int i) throws Exception {
+		character = line.charAt(i);
+		while (!character.equals('}')) {
+			character = pegaCaracter();
 		}
-		i++;
-		if(i >= line.length()) {
-			line = scanner.nextLine();
-			i = 0;
-		}
-		return i;
+		character = pegaCaracter();
 	}
 
-	private int pegaToken(int i) throws Exception {
-		Character character = line.charAt(i);
+	private void pegaToken() throws Exception {
 		if(Character.isDigit(character)) {
 			// trata digito
-			i = trataDigito(i);
+			trataDigito();
 
 		} else if(Character.isLetter(character)) {
 			// trata letra
-			i = trataLetra(i);
+			trataLetra();
 
 		} else if (character.equals(':')) {
 			// trata atribuicao
-			i = trataAtibuicao(i);
+			trataAtibuicao();
 
-		} else if(caractereIn(operadoresAritimeticos,character)) {
+		} else if(characterIn(operadoresAritimeticos,character)) {
 			// trata operador aritmetico
-			i = trataAritmetico(i);
+			trataAritmetico();
 
-		} else if(caractereIn(operadoresRelacionais,character)) {
+		} else if(characterIn(operadoresRelacionais,character)) {
 			// trata operador relacional
-			i = trataRelacional(i);
+			trataRelacional();
 
-		} else if(caractereIn(pontuacoes,character)) {
+		} else if(characterIn(pontuacoes,character)) {
 			// trata pontuacao
-			i = trataPontuacao(i);
+			trataPontuacao();
 
 		} else {
 			// TODO erro
-			for (Token t : this.tokens){
-				System.out.println(t.getLexema() + " - " + t.getSimbolo() + "\n");
-			}
-			throw new Exception("Caracter inválido");
+			throw new Exception(String.format("Caracter %c inválido",character));
 		}
-		return i;
 	}
 
-	private int trataDigito(int i) {
-		Character character = line.charAt(i);
+	private void trataDigito() throws Exception {
 		String numero = String.valueOf(character);
-		i++;
-		if(i<line.length()) {
-			character = line.charAt(i);
-			while(Character.isDigit(character)) {
-				numero = numero + character;
-				i++;
-				character = line.charAt(i);
-			}
+		character = pegaCaracter();
+		while(Character.isDigit(character)) {
+			numero = numero + character;
+			character = pegaCaracter();
 		}
+
 		Token token = new Token("snumero", numero);
 		this.tokens.add(token);
-		return i;
 	}
 
-	private int trataLetra(int i) {
-		Character character = line.charAt(i);
+	private void trataLetra() throws Exception {
 		String id = String.valueOf(character);
-		i++;
-		if(i<line.length()) {
-			character = line.charAt(i);
-			while (Character.isLetter(character) || Character.isDigit(character) || character.equals('_')) {
-				id = id + character;
-				i++;
-				if (i >= line.length()) {
-					break;
-				}
-				character = line.charAt(i);
-			}
+		character = pegaCaracter();
+		while (Character.isLetter(character) || Character.isDigit(character) || character.equals('_')) {
+			id = id + character;
+			character = pegaCaracter();
 		}
 
 		Token token;
@@ -260,29 +211,23 @@ public class LexicalAnalyzer {
 				this.tokens.add(token);
 			}
         }
-		return i;
 	}
 
-	private int trataAtibuicao(int i) {
-		i++;
-		Character character = line.charAt(i);
+	private void trataAtibuicao() throws Exception {
+		character = pegaCaracter();
 
 		Token token;
 		if(character.equals('=')) {
 			token = new Token("satribuicao",":=");
 			tokens.add(token);
-			i++;
+			character = pegaCaracter();
 		} else {
 			token = new Token("sdoispontos",":");
 			tokens.add(token);
 		}
-
-		return i;
 	}
 
-	private int trataAritmetico(int i) {
-		Character character = line.charAt(i);
-
+	private void trataAritmetico() throws Exception {
 		Token token = new Token();
 		token.setLexema(String.valueOf(character));
 
@@ -298,49 +243,37 @@ public class LexicalAnalyzer {
 			}
 		}
 		tokens.add(token);
-		i++;
-
-		return i;
+		character = pegaCaracter();
 	}
 
-	private int trataRelacional(int i) throws Exception {
-		Character character = line.charAt(i);
-
+	private void trataRelacional() throws Exception {
 		Token token = new Token();
 
 		if (character.equals('!')) {
-			i++;
-			character = line.charAt(i);
+			character = pegaCaracter();
 			if(character.equals('=')) {
 				token.setLexema("!=");
 				token.setSimbolo("sdif");
-				i++;
 			} else {
 				// TODO erro
-
-				for (Token t : this.tokens){
-					System.out.println(t.getLexema() + " - " + t.getSimbolo() + "\n");
-				}
-				throw new Exception("Sem igual");
+				throw new Exception(String.format("Caracter ! inválido"));
 			}
 		} else if (character.equals('<')) {
-			i++;
-			character = line.charAt(i);
+			character = pegaCaracter();
 			if (character.equals('=')) {
 				token.setLexema("<=");
 				token.setSimbolo("smenorig");
-				i++;
+				character = pegaCaracter();
 			} else {
 				token.setLexema("<");
 				token.setSimbolo("smenor");
 			}
 		} else if (character.equals('>')) {
-			i++;
-			character = line.charAt(i);
+			character = pegaCaracter();
 			if (character.equals('=')) {
 				token.setLexema(">=");
 				token.setSimbolo("smaiorig");
-				i++;
+				character = pegaCaracter();
 			} else {
 				token.setLexema(">");
 				token.setSimbolo("smaior");
@@ -348,16 +281,12 @@ public class LexicalAnalyzer {
 		} else if (character.equals('=')) {
 			token.setLexema("=");
 			token.setSimbolo("sig");
-			i++;
+			character = pegaCaracter();
 		}
 		tokens.add(token);
-
-		return i;
 	}
 
-	private int trataPontuacao(int i) {
-		Character character = line.charAt(i);
-
+	private void trataPontuacao() throws Exception {
 		Token token = new Token();
 		token.setLexema(String.valueOf(character));
 
@@ -379,17 +308,45 @@ public class LexicalAnalyzer {
 			}
 		}
 		tokens.add(token);
-		i++;
-
-		return i;
+		character = pegaCaracter();
 	}
 
-	private boolean caractereIn(Set<Character> lista, Character caractere) {
+	private boolean characterIn(Set<Character> lista, Character character) {
 		for(Character c : lista) {
-			if(c == caractere) {
+			if(c == character) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	// função para pegar linhas com conteudo
+	private void pegaLinha() throws Exception {
+		line = scanner.nextLine();
+		while (line.isBlank()) {
+			if (!scanner.hasNextLine()) {
+				throw new Exception("Fim de arquivo");
+			}
+			line = scanner.nextLine();
+		}
+	}
+
+	private boolean fimDeLinha() {
+		return  !(i >= line.length());
+	}
+
+	private Character pegaCaracter() throws Exception {
+		Character character;
+		if ((i + 1) >= line.length()) {
+			i=0;
+			if(!scanner.hasNextLine()) {
+				throw new Exception("Fim de arquivo");
+			}
+			pegaLinha();
+		} else {
+			i++;
+		}
+		character = line.charAt(i);
+		return character;
 	}
 }
