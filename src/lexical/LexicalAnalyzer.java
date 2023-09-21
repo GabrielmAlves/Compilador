@@ -6,7 +6,7 @@ import java.util.*;
 public class LexicalAnalyzer {
 
 //	private static String PATH = "file.txt";
-	private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\teste_10.txt";
+	private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\teste_1.txt";
 	private static final Set<Character> operadoresAritimeticos = new HashSet<>(Arrays.asList('+', '-', '*'));
 	private static final Set<Character> operadoresRelacionais = new HashSet<>(Arrays.asList('!', '<', '>', '='));
 	private static final Set<Character> pontuacoes = new HashSet<>(Arrays.asList(';', ',', '(', ')', '.'));
@@ -15,9 +15,10 @@ public class LexicalAnalyzer {
 	private String line;
 	private int i;	// ponteiro da posição de cada linha/string
 	private Character character;
-	private List<Token> tokens = new ArrayList<>();
+//	private List<Token> tokens = new ArrayList<>();
+	private Token tokinho;
 
-	public void analyzer() {
+	public Token analyze() {
 
 		try {
 			File file = new File(PATH);
@@ -30,35 +31,30 @@ public class LexicalAnalyzer {
 			i=-1;
 			pegaLinha();
 			character = pegaCaracter();
-			while (scanner.hasNextLine() || fimDeLinha()) { // enquanto não chegar no fim do arquivo
 
-				if (character.equals('{') || character.equals(' ') || character.equals('\t')) {
-					if (character.equals('{')) {
-						trataComentario(i);
-					}
-					while (character.equals(' ') || character.equals('\t')) {
-						character = pegaCaracter();
-					}
-				} else {
-					// pega token e insere na lista
-					pegaToken();
+			if (character.equals('{') || character.equals(' ') || character.equals('\t')) {
+				if (character.equals('{')) {
+					trataComentario(i);
+				}
+				while (character.equals(' ') || character.equals('\t')) {
+					character = pegaCaracter();
 				}
 			}
+				// pega token e insere na lista
+				pegaToken();
 
-			System.out.println("\nLISTA DE TOKENS\n");
-			for (Token t : this.tokens){
-				System.out.println(t.getLexema() + " - " + t.getSimbolo());
-			}
-			System.out.println();
+
+			System.out.println(tokinho.getLexema());
+			System.out.println(tokinho.getSimbolo());
+			return tokinho;
+
 
         } catch (Exception e) {
-			System.out.println("\nLISTA DE TOKENS\n");
-			for (Token t : this.tokens){
-				System.out.println(t.getLexema() + " - " + t.getSimbolo());
-			}
-			System.out.println();
 			System.out.println(e.getMessage());
+			return null;
         }
+
+
 	}
 
 	private void trataComentario(int i) throws Exception {
@@ -105,11 +101,15 @@ public class LexicalAnalyzer {
 		character = pegaCaracter();
 		while(Character.isDigit(character)) {
 			numero = numero + character;
+			if((i+1) >= line.length()) {
+				character = pegaCaracter();
+				break;
+			}
 			character = pegaCaracter();
 		}
 
-		Token token = new Token("snumero", numero);
-		this.tokens.add(token);
+		tokinho = new Token("snumero", numero);
+//		this.tokens.add(token);
 	}
 
 	private void trataLetra() throws Exception {
@@ -117,98 +117,101 @@ public class LexicalAnalyzer {
 		character = pegaCaracter();
 		while (Character.isLetter(character) || Character.isDigit(character) || character.equals('_')) {
 			id = id + character;
+			if((i+1) >= line.length()) {
+				character = pegaCaracter();
+				break;
+			}
 			character = pegaCaracter();
 		}
 
-		Token token;
         switch (id) {
             case "programa" -> {
-                token = new Token("sprograma", id);
-                this.tokens.add(token);
+                tokinho = new Token("sprograma", id);
+//                this.tokens.add(token);
             }
             case "se" -> {
-                token = new Token("sse", id);
-                this.tokens.add(token);
+                tokinho= new Token("sse", id);
+//                this.tokens.add(token);
             }
             case "entao" -> {
-                token = new Token("sentao", id);
-                this.tokens.add(token);
+                tokinho = new Token("sentao", id);
+//                this.tokens.add(token);
             }
             case "senao" -> {
-                token = new Token("ssenao", id);
-                this.tokens.add(token);
+				tokinho = new Token("ssenao", id);
+//                this.tokens.add(token);
             }
             case "enquanto" -> {
-                token = new Token("senquanto", id);
-                this.tokens.add(token);
+				tokinho = new Token("senquanto", id);
+//                this.tokens.add(token);
             }
             case "faca" -> {
-                token = new Token("sfaca", id);
-                this.tokens.add(token);
+				tokinho = new Token("sfaca", id);
+//                this.tokens.add(token);
             }
 			case "inicio" -> {
-				token = new Token("sinicio", id);
-				this.tokens.add(token);
+				tokinho = new Token("sinicio", id);
+//				this.tokens.add(token);
 			}
 			case "fim" -> {
-				token = new Token("sfim", id);
-				this.tokens.add(token);
+				tokinho = new Token("sfim", id);
+//				this.tokens.add(token);
 			}
 			case "escreva" -> {
-				token = new Token("sescreva", id);
-				this.tokens.add(token);
+				tokinho = new Token("sescreva", id);
+//				this.tokens.add(token);
 			}
 			case "leia" -> {
-				token = new Token("sleia", id);
-				this.tokens.add(token);
+				tokinho = new Token("sleia", id);
+//				this.tokens.add(token);
 			}
 			case "var" -> {
-				token = new Token("svar", id);
-				this.tokens.add(token);
+				tokinho = new Token("svar", id);
+//				this.tokens.add(token);
 			}
 			case "inteiro" -> {
-				token = new Token("sinteiro", id);
-				this.tokens.add(token);
+				tokinho = new Token("sinteiro", id);
+//				this.tokens.add(token);
 			}
 			case "booleano" -> {
-				token = new Token("sbooleano", id);
-				this.tokens.add(token);
+				tokinho = new Token("sbooleano", id);
+//				this.tokens.add(token);
 			}
 			case "verdadeiro" -> {
-				token = new Token("sverdadeiro", id);
-				this.tokens.add(token);
+				tokinho = new Token("sverdadeiro", id);
+//				this.tokens.add(token);
 			}
 			case "falso" -> {
-				token = new Token("sfalso", id);
-				this.tokens.add(token);
+				tokinho = new Token("sfalso", id);
+//				this.tokens.add(token);
 			}
 			case "procedimento" -> {
-				token = new Token("sprocedimento", id);
-				this.tokens.add(token);
+				tokinho = new Token("sprocedimento", id);
+//				this.tokens.add(token);
 			}
 			case "funcao" -> {
-				token = new Token("sfuncao", id);
-				this.tokens.add(token);
+				tokinho = new Token("sfuncao", id);
+//				this.tokens.add(token);
 			}
 			case "div" -> {
-				token = new Token("sdiv", id);
-				this.tokens.add(token);
+				tokinho = new Token("sdiv", id);
+//				this.tokens.add(token);
 			}
 			case "e" -> {
-				token = new Token("se", id);
-				this.tokens.add(token);
+				tokinho = new Token("se", id);
+//				this.tokens.add(token);
 			}
 			case "ou" -> {
-				token = new Token("sou", id);
-				this.tokens.add(token);
+				tokinho = new Token("sou", id);
+//				this.tokens.add(token);
 			}
 			case "nao" -> {
-				token = new Token("snao", id);
-				this.tokens.add(token);
+				tokinho = new Token("snao", id);
+//				this.tokens.add(token);
 			}
 			default -> {
-				token = new Token("sidentificador", id);
-				this.tokens.add(token);
+				tokinho = new Token("sidentificador", id);
+//				this.tokens.add(token);
 			}
         }
 	}
@@ -216,44 +219,41 @@ public class LexicalAnalyzer {
 	private void trataAtibuicao() throws Exception {
 		character = pegaCaracter();
 
-		Token token;
 		if(character.equals('=')) {
-			token = new Token("satribuicao",":=");
-			tokens.add(token);
+			tokinho = new Token("satribuicao",":=");
+//			tokens.add(token);
 			character = pegaCaracter();
 		} else {
-			token = new Token("sdoispontos",":");
-			tokens.add(token);
+			tokinho = new Token("sdoispontos",":");
+//			tokens.add(token);
 		}
 	}
 
 	private void trataAritmetico() throws Exception {
-		Token token = new Token();
-		token.setLexema(String.valueOf(character));
+		tokinho.setLexema(String.valueOf(character));
 
 		switch (character) {
 			case '+' -> {
-				token.setSimbolo("smais");
+				tokinho.setSimbolo("smais");
 			}
 			case '-' -> {
-				token.setSimbolo("smenos");
+				tokinho.setSimbolo("smenos");
 			}
 			case '*' -> {
-				token.setSimbolo("smult");
+				tokinho.setSimbolo("smult");
 			}
 		}
-		tokens.add(token);
+//		tokens.add(token);
 		character = pegaCaracter();
 	}
 
 	private void trataRelacional() throws Exception {
-		Token token = new Token();
 
 		if (character.equals('!')) {
 			character = pegaCaracter();
 			if(character.equals('=')) {
-				token.setLexema("!=");
-				token.setSimbolo("sdif");
+				tokinho.setLexema("!=");
+				tokinho.setSimbolo("sdif");
 			} else {
 				// TODO erro
 				throw new Exception(String.format("Caracter ! inválido"));
@@ -261,53 +261,52 @@ public class LexicalAnalyzer {
 		} else if (character.equals('<')) {
 			character = pegaCaracter();
 			if (character.equals('=')) {
-				token.setLexema("<=");
-				token.setSimbolo("smenorig");
+				tokinho.setLexema("<=");
+				tokinho.setSimbolo("smenorig");
 				character = pegaCaracter();
 			} else {
-				token.setLexema("<");
-				token.setSimbolo("smenor");
+				tokinho.setLexema("<");
+				tokinho.setSimbolo("smenor");
 			}
 		} else if (character.equals('>')) {
 			character = pegaCaracter();
 			if (character.equals('=')) {
-				token.setLexema(">=");
-				token.setSimbolo("smaiorig");
+				tokinho.setLexema(">=");
+				tokinho.setSimbolo("smaiorig");
 				character = pegaCaracter();
 			} else {
-				token.setLexema(">");
-				token.setSimbolo("smaior");
+				tokinho.setLexema(">");
+				tokinho.setSimbolo("smaior");
 			}
 		} else if (character.equals('=')) {
-			token.setLexema("=");
-			token.setSimbolo("sig");
+			tokinho.setLexema("=");
+			tokinho.setSimbolo("sig");
 			character = pegaCaracter();
 		}
-		tokens.add(token);
+//		tokens.add(token);
 	}
 
 	private void trataPontuacao() throws Exception {
-		Token token = new Token();
-		token.setLexema(String.valueOf(character));
+
+		tokinho.setLexema(String.valueOf(character));
 
 		switch (character) {
 			case '.' -> {
-				token.setSimbolo("sponto");
+				tokinho.setSimbolo("sponto");
 			}
 			case ';' -> {
-				token.setSimbolo("sponto_virgula");
+				tokinho.setSimbolo("sponto_virgula");
 			}
 			case ',' -> {
-				token.setSimbolo("svirgula");
+				tokinho.setSimbolo("svirgula");
 			}
 			case '(' -> {
-				token.setSimbolo("sabre_parenteses");
+				tokinho.setSimbolo("sabre_parenteses");
 			}
 			case ')' -> {
-				token.setSimbolo("sfecha_parenteses");
+				tokinho.setSimbolo("sfecha_parenteses");
 			}
 		}
-		tokens.add(token);
 		character = pegaCaracter();
 	}
 
@@ -332,7 +331,7 @@ public class LexicalAnalyzer {
 	}
 
 	private boolean fimDeLinha() {
-		return  !(i >= line.length());
+		return  i >= line.length();
 	}
 
 	private Character pegaCaracter() throws Exception {
