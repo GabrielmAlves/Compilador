@@ -218,8 +218,124 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void analisaSubrotinas() {
+    private void analisaExpressao() {
+        analisaExpressaoSimples();
+        if (token.getSimbolo().equals("smaior") || token.getSimbolo().equals("smaiorig") ||
+                token.getSimbolo().equals("sig") || token.getSimbolo().equals("smenor") ||
+                token.getSimbolo().equals("smenorig") || token.getSimbolo().equals("sdif")) {
 
+            token = lexical.analyze();
+            analisaExpressaoSimples();
+        }
+    }
+
+    private void analisaExpressaoSimples() {
+        if (token.getSimbolo().equals("smais") || token.getSimbolo().equals("smenos") || token.getSimbolo().equals("sou")) {
+            token = lexical.analyze();
+        }
+        analisaTermo();
+        while (token.getSimbolo().equals("smais") || token.getSimbolo().equals("smenos") || token.getSimbolo().equals("sou")) {
+            token = lexical.analyze();
+            analisaTermo();
+        }
+    }
+
+    private void analisaTermo() {
+        analisaFator();
+        while (token.getSimbolo().equals("smult") || token.getSimbolo().equals("sdiv") || token.getSimbolo().equals("se")) {
+            token = lexical.analyze();
+            analisaFator();
+        }
+    }
+
+    private void analisaFator() {
+        if(token.getSimbolo().equals("sidentificador")) {
+            // TODO semantico
+            analisaChamadaFuncao();
+        } else if (token.getSimbolo().equals("snumero")) {
+            token = lexical.analyze();
+        } else if (token.getSimbolo().equals("snao")) {
+            token = lexical.analyze();
+            analisaFator();
+        } else if (token.getSimbolo().equals("sabreparenteses")) {
+            token = lexical.analyze();
+            analisaExpressao();
+            if (token.getSimbolo().equals("sfechaparenteses")) {
+                token = lexical.analyze();
+            } else {
+                // TODO erro
+            }
+        } else if (token.getLexema().equals("verdadeiro") || token.getLexema().equals("falso")) {
+            token = lexical.analyze();
+        } else {
+            // TODO erro
+        }
+    }
+
+    private void analisaSubrotinas() {
+        //TODO geracao de código
+
+        while (token.getSimbolo().equals("sprocedimento") || token.getSimbolo().equals("sfuncao")) {
+            if (token.getSimbolo().equals("sprocedimento")) {
+                analisaDeclaracaoProcedimento();
+            } else {
+                analisaDeclaracaoFuncao();
+            }
+
+            if (token.getSimbolo().equals("spontovirgula")) {
+                token = lexical.analyze();
+            } else {
+                // TODO erro
+            }
+        }
+
+        //TODO geracao de código
+    }
+
+    private void analisaDeclaracaoProcedimento() {
+        token = lexical.analyze();
+
+        if (token.getSimbolo().equals("sidentificador")) {
+            // TODO semantico
+            // TODO geracao de código
+
+            token = lexical.analyze();
+            if (token.getSimbolo().equals("spontovirgula")) {
+                analisaBloco();
+            } else {
+                // TODO erro
+            }
+        } else {
+            // TODO erro
+        }
+    }
+
+    private void analisaDeclaracaoFuncao() {
+        token = lexical.analyze();
+
+        if (token.getSimbolo().equals("sidentificador")) {
+            // TODO semantico
+
+            token = lexical.analyze();
+            if(token.getSimbolo().equals("sdoispontos")) {
+                token = lexical.analyze();
+                if (token.getSimbolo().equals("sinteiro") || token.getSimbolo().equals("sbooleano")) {
+                    // TODO semantico
+
+                    token = lexical.analyze();
+                    if (token.getSimbolo().equals("spontovirgula")) {
+                        analisaBloco();
+                    }
+                } else {
+                    // TODO erro
+                }
+            } else {
+                // TODO erro
+            }
+        } else {
+            // TODO erro
+        }
+        // TODO semantico
     }
 
 }
