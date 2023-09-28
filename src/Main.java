@@ -1,9 +1,10 @@
 import lexical.LexicalAnalyzer;
+import sintatico.AnalisadorSintatico;
 
 public class Main {
     public static void main(String[] args) {
-        LexicalAnalyzer analisador = new LexicalAnalyzer();
+        AnalisadorSintatico analisador = new AnalisadorSintatico();
 
-        analisador.analyze();
+        analisador.analisa();
     }
 }

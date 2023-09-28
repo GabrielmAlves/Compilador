@@ -5,8 +5,7 @@ import java.util.*;
 
 public class LexicalAnalyzer {
 
-//	private static String PATH = "file.txt";
-	private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\teste_1.txt";
+	//	private static String PATH = "file.txt";
 	private static final Set<Character> operadoresAritimeticos = new HashSet<>(Arrays.asList('+', '-', '*'));
 	private static final Set<Character> operadoresRelacionais = new HashSet<>(Arrays.asList('!', '<', '>', '='));
 	private static final Set<Character> pontuacoes = new HashSet<>(Arrays.asList(';', ',', '(', ')', '.'));
@@ -18,19 +17,24 @@ public class LexicalAnalyzer {
 //	private List<Token> tokens = new ArrayList<>();
 	private Token tokinho;
 
+	public LexicalAnalyzer(File file) {
+		try{
+			scanner = new Scanner(file);
+			i=-1;
+			pegaLinha();
+			character = pegaCaracter();
+		} catch (Exception e){
+			System.out.println(e.getMessage());
+		}
+	}
+
 	public Token analyze() {
 
 		try {
-			File file = new File(PATH);
-			scanner = new Scanner(file);
 
 			if (!scanner.hasNextLine()) {
 				throw new Exception("Arquivo vazio");
 			}
-
-			i=-1;
-			pegaLinha();
-			character = pegaCaracter();
 
 			if (character.equals('{') || character.equals(' ') || character.equals('\t')) {
 				if (character.equals('{')) {
@@ -44,8 +48,9 @@ public class LexicalAnalyzer {
 				pegaToken();
 
 
-			System.out.println(tokinho.getLexema());
-			System.out.println(tokinho.getSimbolo());
+//			System.out.println(tokinho.getLexema());
+//			System.out.println(tokinho.getSimbolo());
+			//System.out.println(character);
 			return tokinho;
 
 
@@ -66,6 +71,12 @@ public class LexicalAnalyzer {
 	}
 
 	private void pegaToken() throws Exception {
+
+		if(character == null) {
+			tokinho = null;
+			return;
+		}
+
 		if(Character.isDigit(character)) {
 			// trata digito
 			trataDigito();
@@ -295,16 +306,16 @@ public class LexicalAnalyzer {
 				tokinho.setSimbolo("sponto");
 			}
 			case ';' -> {
-				tokinho.setSimbolo("sponto_virgula");
+				tokinho.setSimbolo("spontovirgula");
 			}
 			case ',' -> {
 				tokinho.setSimbolo("svirgula");
 			}
 			case '(' -> {
-				tokinho.setSimbolo("sabre_parenteses");
+				tokinho.setSimbolo("sabreparenteses");
 			}
 			case ')' -> {
-				tokinho.setSimbolo("sfecha_parenteses");
+				tokinho.setSimbolo("sfechaparenteses");
 			}
 		}
 		character = pegaCaracter();
@@ -339,7 +350,8 @@ public class LexicalAnalyzer {
 		if ((i + 1) >= line.length()) {
 			i=0;
 			if(!scanner.hasNextLine()) {
-				throw new Exception("Fim de arquivo");
+				System.out.println("Fim de arquivo");
+				return null;
 			}
 			pegaLinha();
 		} else {
