@@ -13,14 +13,13 @@ public class AnalisadorSintatico {
     private Token token;
     public void analisa(){
 
-//        for (int i = 0; i<10;i++) {
-            token = lexical.analyze();
-            System.out.println(token.getLexema() + " " + token.getSimbolo());
-
-//        }
+        token = lexical.analyze();
+        System.out.println(token.getLexema() + " " + token.getSimbolo());
 
         if(token.getSimbolo().equals("sprograma")){
+            token = lexical.analyze();
             if(token.getSimbolo().equals("sidentificador")){
+                // TODO semantico
                 token = lexical.analyze();
                 if(token.getSimbolo().equals("spontovirgula")){
                     analisaBloco();
@@ -110,12 +109,12 @@ public class AnalisadorSintatico {
             token = lexical.analyze();
             analisaComandoSimples();
             while (!token.getSimbolo().equals("sfim")){
-                if(token.getSimbolo().equals("spontovirgula")){
+                if (token.getSimbolo().equals("spontovirgula")){
                     token = lexical.analyze();
                     if(!token.getSimbolo().equals("sfim")){
                         analisaComandoSimples();
                     }
-                } else{
+                } else {
                     //TODO erro
                 }
             }
@@ -139,10 +138,16 @@ public class AnalisadorSintatico {
     private void analisaAtribChprocedimento() {
         token = lexical.analyze();
         if (token.getSimbolo().equals("satribuicao")){
-            analisaAtribuicao();
+            token = lexical.analyze();
+            analisaExpressao();
         } else {
-            chamaProcedimento();
+            chamadaProcedimento();
         }
+    }
+
+    private void chamadaProcedimento() {
+        token = lexical.analyze();
+        // TODO não sei
     }
 
     private void analisaLeia() {
@@ -150,14 +155,12 @@ public class AnalisadorSintatico {
         if(token.getSimbolo().equals("sabreparenteses")){
             token = lexical.analyze();
             if(token.getSimbolo().equals("sidentificador")){
-               // if(pesquisaDeclvarTabela(token.getLexema())){
+                token = lexical.analyze();
+                if(token.getSimbolo().equals("sfechaparenteses")){
                     token = lexical.analyze();
-                    if(token.getSimbolo().equals("sfechaparenteses")){
-                        token = lexical.analyze();
-                    } else {
-                        //TODO erro
-                    }
-               // } else{TODO erro}
+                } else {
+                    //TODO erro
+                }
             } else {
                 //TODO erro
             }
@@ -171,14 +174,12 @@ public class AnalisadorSintatico {
         if (token.getSimbolo().equals("sabreparenteses")){
             token = lexical.analyze();
             if(token.getSimbolo().equals("sidentificador")){
-                // if(pesquisaDeclvarfuncTabela(token.getLexema())){
                 token = lexical.analyze();
                 if(token.getSimbolo().equals("sfechaparenteses")){
                     token = lexical.analyze();
                 } else {
                     //TODO erro
                 }
-                // } else{TODO erro}
             } else {
                 //TODO erro
             }
@@ -230,7 +231,7 @@ public class AnalisadorSintatico {
     }
 
     private void analisaExpressaoSimples() {
-        if (token.getSimbolo().equals("smais") || token.getSimbolo().equals("smenos") || token.getSimbolo().equals("sou")) {
+        if (token.getSimbolo().equals("smais") || token.getSimbolo().equals("smenos")) {
             token = lexical.analyze();
         }
         analisaTermo();
@@ -251,7 +252,7 @@ public class AnalisadorSintatico {
     private void analisaFator() {
         if(token.getSimbolo().equals("sidentificador")) {
             // TODO semantico
-            analisaChamadaFuncao();
+            chamadaFuncao();
         } else if (token.getSimbolo().equals("snumero")) {
             token = lexical.analyze();
         } else if (token.getSimbolo().equals("snao")) {
