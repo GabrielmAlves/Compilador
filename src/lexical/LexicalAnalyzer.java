@@ -30,9 +30,6 @@ public class LexicalAnalyzer {
 	public Token analyze() {
 
 		try {
-			if (!scanner.hasNextLine()) {
-				throw new Exception("Arquivo vazio");
-			}
 
 			while (character.equals('{') || character.equals(' ') || character.equals('\t')) {
 				if (character.equals('{')) {

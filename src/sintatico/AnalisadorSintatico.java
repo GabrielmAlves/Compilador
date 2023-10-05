@@ -7,7 +7,7 @@ import java.io.File;
 
 public class AnalisadorSintatico {
 
-    private static final String PATH ="D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\sintatico\\sint18.txt";
+    private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\sintatico\\sint20.txt";
     private LexicalAnalyzer lexical;
     private Token token;
     public void analisa(){
