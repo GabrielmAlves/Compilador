@@ -7,14 +7,15 @@ import java.io.File;
 
 public class AnalisadorSintatico {
 
-    private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\teste_1.txt";
-    private  File file = new File(PATH);
-    private LexicalAnalyzer lexical = new LexicalAnalyzer(file);
+    private static final String PATH ="D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\sintatico\\sint18.txt";
+    private LexicalAnalyzer lexical;
     private Token token;
     public void analisa(){
 
+        File file = new File(PATH);
+        lexical = new LexicalAnalyzer(file);
+
         token = lexical.analyze();
-        System.out.println(token.getLexema() + " " + token.getSimbolo());
 
         if(token.getSimbolo().equals("sprograma")){
             token = lexical.analyze();
@@ -24,24 +25,36 @@ public class AnalisadorSintatico {
                 if(token.getSimbolo().equals("spontovirgula")){
                     analisaBloco();
                     if(token.getSimbolo().equals("sponto")){
+                        token = lexical.analyze();
                         if(token == null) {
                             // TODO sucesso
+                            System.out.println("Sucesso!");
                         } else {
                             // TODO erro
+                            System.out.println("Erro 1");
+                            return;
                         }
 
                     }else {
                         // TODO erro
+                        System.out.println("Erro 2");
+                        return;
                     }
                 }else {
                     // TODO erro
+                    System.out.println("Erro 3");
+                    return;
                 }
 
             }else {
                 // TODO erro
+                System.out.println("Erro 4");
+                return;
             }
         }else {
             // TODO erro
+            System.out.println("Erro 5");
+            return;
         }
     }
 
@@ -62,10 +75,14 @@ public class AnalisadorSintatico {
                         token = lexical.analyze();
                     } else {
                         //TODO erro
+                        System.out.println("Erro 6");
+                        return;
                     }
                 }
             } else {
                 //TODO erro
+                System.out.println("Erro 7");
+                return;
             }
         }
 
@@ -82,13 +99,19 @@ public class AnalisadorSintatico {
                         token = lexical.analyze();
                         if (token.getSimbolo().equals("sdoispontos")) {
                             //TODO erro
+                            System.out.println("Erro 8");
+                            return;
                         }
                     }
                 } else {
                     //TODO erro
+                    System.out.println("Erro 9");
+                    return;
                 }
             } else {
                 //TODO erro
+                System.out.println("Erro 10");
+                return;
             }
         } while (!token.getSimbolo().equals("sdoispontos"));
         token = lexical.analyze();
@@ -98,6 +121,9 @@ public class AnalisadorSintatico {
     private void analisaTipo() {
         if (!token.getSimbolo().equals("sinteiro") && !token.getSimbolo().equals("sbooleano")) {
             //TODO erro
+            System.out.println("Erro 11");
+            return;
+
         } else {
             //TODO semantico
         }
@@ -116,11 +142,15 @@ public class AnalisadorSintatico {
                     }
                 } else {
                     //TODO erro
+                    System.out.println("Erro 12");
+                    return;
                 }
             }
             token = lexical.analyze();
         } else{
             //TODO erro
+            System.out.println("Erro 13");
+            return;
         }
     }
 
@@ -146,7 +176,6 @@ public class AnalisadorSintatico {
     }
 
     private void chamadaProcedimento() {
-        token = lexical.analyze();
         // TODO não sei
     }
 
@@ -160,12 +189,18 @@ public class AnalisadorSintatico {
                     token = lexical.analyze();
                 } else {
                     //TODO erro
+                    System.out.println("Erro 14");
+                    return;
                 }
             } else {
                 //TODO erro
+                System.out.println("Erro 15");
+                return;
             }
         } else {
             //TODO erro
+            System.out.println("Erro 16");
+            return;
         }
     }
 
@@ -179,12 +214,18 @@ public class AnalisadorSintatico {
                     token = lexical.analyze();
                 } else {
                     //TODO erro
+                    System.out.println("Erro 17");
+                    return;
                 }
             } else {
                 //TODO erro
+                System.out.println("Erro 18");
+                return;
             }
         } else {
             //TODO erro
+            System.out.println("Erro 19");
+            return;
         }
     }
 
@@ -200,6 +241,8 @@ public class AnalisadorSintatico {
             //TODO geracao de código
         } else {
             //TODO erro
+            System.out.println("Erro 20");
+            return;
         }
     }
 
@@ -216,6 +259,8 @@ public class AnalisadorSintatico {
             }
         } else {
             //TODO erro
+            System.out.println("Erro 21");
+            return;
         }
     }
 
@@ -265,12 +310,21 @@ public class AnalisadorSintatico {
                 token = lexical.analyze();
             } else {
                 // TODO erro
+                System.out.println("Erro 22");
+                return;
             }
         } else if (token.getLexema().equals("verdadeiro") || token.getLexema().equals("falso")) {
             token = lexical.analyze();
         } else {
             // TODO erro
+            System.out.println("Erro 23");
+            return;
         }
+    }
+
+    private void chamadaFuncao() {
+        token = lexical.analyze();
+        // TODO não sei
     }
 
     private void analisaSubrotinas() {
@@ -287,6 +341,8 @@ public class AnalisadorSintatico {
                 token = lexical.analyze();
             } else {
                 // TODO erro
+                System.out.println("Erro 24");
+                return;
             }
         }
 
@@ -305,9 +361,13 @@ public class AnalisadorSintatico {
                 analisaBloco();
             } else {
                 // TODO erro
+                System.out.println("Erro 25");
+                return;
             }
         } else {
             // TODO erro
+            System.out.println("Erro 26");
+            return;
         }
     }
 
@@ -329,12 +389,18 @@ public class AnalisadorSintatico {
                     }
                 } else {
                     // TODO erro
+                    System.out.println("Erro 27");
+                    return;
                 }
             } else {
                 // TODO erro
+                System.out.println("Erro 28");
+                return;
             }
         } else {
             // TODO erro
+            System.out.println("Erro 29");
+            return;
         }
         // TODO semantico
     }

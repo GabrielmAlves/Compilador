@@ -14,7 +14,6 @@ public class LexicalAnalyzer {
 	private String line;
 	private int i;	// ponteiro da posição de cada linha/string
 	private Character character;
-//	private List<Token> tokens = new ArrayList<>();
 	private Token tokinho;
 
 	public LexicalAnalyzer(File file) {
@@ -31,21 +30,18 @@ public class LexicalAnalyzer {
 	public Token analyze() {
 
 		try {
-
 			if (!scanner.hasNextLine()) {
 				throw new Exception("Arquivo vazio");
 			}
 
-			if (character.equals('{') || character.equals(' ') || character.equals('\t')) {
+			while (character.equals('{') || character.equals(' ') || character.equals('\t')) {
 				if (character.equals('{')) {
 					trataComentario(i);
 				}
-				while (character.equals(' ') || character.equals('\t')) {
-					character = pegaCaracter();
-				}
+				character = pegaCaracter();
 			}
-				// pega token e insere na lista
-				pegaToken();
+
+			pegaToken();
 
 
 //			System.out.println(tokinho.getLexema());
@@ -67,7 +63,6 @@ public class LexicalAnalyzer {
 		while (!character.equals('}')) {
 			character = pegaCaracter();
 		}
-		character = pegaCaracter();
 	}
 
 	private void pegaToken() throws Exception {
@@ -265,6 +260,7 @@ public class LexicalAnalyzer {
 			if(character.equals('=')) {
 				tokinho.setLexema("!=");
 				tokinho.setSimbolo("sdif");
+				character = pegaCaracter();
 			} else {
 				// TODO erro
 				throw new Exception(String.format("Caracter ! inválido"));
@@ -318,6 +314,7 @@ public class LexicalAnalyzer {
 				tokinho.setSimbolo("sfechaparenteses");
 			}
 		}
+
 		character = pegaCaracter();
 	}
 
@@ -331,29 +328,29 @@ public class LexicalAnalyzer {
 	}
 
 	// função para pegar linhas com conteudo
-	private void pegaLinha() throws Exception {
+	private boolean pegaLinha() throws Exception {
 		line = scanner.nextLine();
 		while (line.isBlank()) {
 			if (!scanner.hasNextLine()) {
-				throw new Exception("Fim de arquivo");
+				System.out.println("Fim de arquivo");
+				return false;
 			}
 			line = scanner.nextLine();
 		}
-	}
-
-	private boolean fimDeLinha() {
-		return  i >= line.length();
+		return true;
 	}
 
 	private Character pegaCaracter() throws Exception {
 		Character character;
 		if ((i + 1) >= line.length()) {
 			i=0;
-			if(!scanner.hasNextLine()) {
+			if (!scanner.hasNextLine()) {
 				System.out.println("Fim de arquivo");
 				return null;
 			}
-			pegaLinha();
+			if (!pegaLinha()) {
+				return null;
+			}
 		} else {
 			i++;
 		}
