@@ -9,7 +9,7 @@ import java.util.Deque;
 
 public class AnalisadorSintatico {
 
-    private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\sintatico\\sint15.txt";
+    private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\gera1.txt";
     private LexicalAnalyzer lexical;
     private Token token;
     private Deque<TabelaSimbolos> tabelaSimbolos = new ArrayDeque<>();
@@ -134,17 +134,14 @@ public class AnalisadorSintatico {
     }
 
     private boolean pesquisaDuplicidade(String lexema) {
-
         for(TabelaSimbolos simbolo : tabelaSimbolos) {
             if(simbolo.getEscopo()) {
                 return false;
             }
-
             if (simbolo.getLexema().equals(lexema)) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -153,10 +150,8 @@ public class AnalisadorSintatico {
             //TODO erro
             System.out.println("Erro 11");
             return;
-
-        } else {
-            colocaTipoTabela(token.getLexema());
         }
+        colocaTipoTabela(token.getLexema());
         token = lexical.analyze();
     }
 
@@ -363,9 +358,18 @@ public class AnalisadorSintatico {
     private void analisaFator() {
         if(token.getSimbolo().equals("sidentificador")) {
             // semantico
-
-
-            chamadaFuncao();
+            TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
+            if(simbolo != null) {
+                if(simbolo.getTipo() == TabelaSimbolos.Tipo.FUNCAO_BOOLEANA || simbolo.getTipo() == TabelaSimbolos.Tipo.FUNCAO_INTEIRA) {
+                    chamadaFuncao();
+                } else {
+                    token = lexical.analyze();
+                }
+            } else {
+                // TODO erro
+                System.out.println("Erro não achou na tabela de simbolos");
+                return;
+            }
         } else if (token.getSimbolo().equals("snumero")) {
             token = lexical.analyze();
         } else if (token.getSimbolo().equals("snao")) {
@@ -388,6 +392,15 @@ public class AnalisadorSintatico {
             System.out.println("Erro 23");
             return;
         }
+    }
+
+    private TabelaSimbolos pesquisaTabela(String lexema) {
+        for(TabelaSimbolos simbolo : tabelaSimbolos) {
+            if (simbolo.getLexema().equals(lexema)) {
+                return simbolo;
+            }
+        }
+        return null;
     }
 
     private void chamadaFuncao() {
@@ -476,7 +489,6 @@ public class AnalisadorSintatico {
             // semantico
             if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
                 TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), TabelaSimbolos.Tipo.FUNCAO, true,"");
-                tabelaSimbolos.push(simbolo);
 
                 token = lexical.analyze();
                 if(token.getSimbolo().equals("sdoispontos")) {
@@ -489,6 +501,7 @@ public class AnalisadorSintatico {
                             simbolo.setTipo(TabelaSimbolos.Tipo.FUNCAO_BOOLEANA);
                         }
 
+                        tabelaSimbolos.push(simbolo);
                         token = lexical.analyze();
                         if (token.getSimbolo().equals("spontovirgula")) {
                             analisaBloco();
@@ -513,7 +526,7 @@ public class AnalisadorSintatico {
             System.out.println("Erro 29");
             return;
         }
-        // semantico
+
         desempilha();
     }
 }
