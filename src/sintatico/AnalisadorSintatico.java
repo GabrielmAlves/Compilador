@@ -466,7 +466,7 @@ public class AnalisadorSintatico {
     private void desempilha() {
         for (TabelaSimbolos simbolo : tabelaSimbolos) {
             if(simbolo.getEscopo()) {
-                tabelaSimbolos.pop();
+//                tabelaSimbolos.pop();
                 break;
             }
             tabelaSimbolos.pop();
