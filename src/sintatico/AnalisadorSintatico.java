@@ -5,7 +5,9 @@ import lexical.Token;
 
 import java.io.File;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 public class AnalisadorSintatico {
 
@@ -13,6 +15,8 @@ public class AnalisadorSintatico {
     private LexicalAnalyzer lexical;
     private Token token;
     private Deque<TabelaSimbolos> tabelaSimbolos = new ArrayDeque<>();
+    private Deque<String> pilhaPos = new ArrayDeque<>();
+    private List<PosFixa> saida = new ArrayList<>();
 
     public void analisa(){
 
@@ -25,7 +29,7 @@ public class AnalisadorSintatico {
             token = lexical.analyze();
             if(token.getSimbolo().equals("sidentificador")) {
                 // semantico
-                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), TabelaSimbolos.Tipo.PROGRAMA,false,"");
+                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROGRAMA,false,"");
                 tabelaSimbolos.push(simbolo);
 
                 token = lexical.analyze();
@@ -100,7 +104,7 @@ public class AnalisadorSintatico {
             if (token.getSimbolo().equals("sidentificador")) {
                 // semantico
                 if(!pesquisaDuplicidade(token.getLexema())) {
-                    TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), TabelaSimbolos.Tipo.VARIAVEL,false,"");
+                    TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.VARIAVEL,false,"");
                     tabelaSimbolos.push(simbolo);
 
                     token = lexical.analyze();
@@ -157,11 +161,11 @@ public class AnalisadorSintatico {
 
     private void colocaTipoTabela(String lexema) {
         for(TabelaSimbolos simbolo : tabelaSimbolos) {
-            if(simbolo.getTipo().equals(TabelaSimbolos.Tipo.VARIAVEL)) {
+            if(simbolo.getTipo().equals(Tipo.VARIAVEL)) {
                 if(lexema.equals("inteiro")) {
-                    simbolo.setTipo(TabelaSimbolos.Tipo.VARIAVEL_INTEIRA);
+                    simbolo.setTipo(Tipo.VARIAVEL_INTEIRA);
                 } else {
-                    simbolo.setTipo(TabelaSimbolos.Tipo.VARIAVEL_BOOLEANA);
+                    simbolo.setTipo(Tipo.VARIAVEL_BOOLEANA);
                 }
             }
         }
@@ -360,9 +364,11 @@ public class AnalisadorSintatico {
             // semantico
             TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
             if(simbolo != null) {
-                if(simbolo.getTipo() == TabelaSimbolos.Tipo.FUNCAO_BOOLEANA || simbolo.getTipo() == TabelaSimbolos.Tipo.FUNCAO_INTEIRA) {
+                if(simbolo.getTipo() == Tipo.FUNCAO_BOOLEANA || simbolo.getTipo() == Tipo.FUNCAO_INTEIRA) {
                     chamadaFuncao();
                 } else {
+                    PosFixa pos = new PosFixa(simbolo.getLexema(), simbolo.getTipo());
+                    saida.add(pos);
                     token = lexical.analyze();
                 }
             } else {
@@ -371,14 +377,18 @@ public class AnalisadorSintatico {
                 return;
             }
         } else if (token.getSimbolo().equals("snumero")) {
+            PosFixa pos = new PosFixa(token.getLexema(), Tipo.CONSTANTE);
+            saida.add(pos);
             token = lexical.analyze();
         } else if (token.getSimbolo().equals("snao")) {
             token = lexical.analyze();
             analisaFator();
         } else if (token.getSimbolo().equals("sabreparenteses")) {
+            pilhaPos.push(token.getLexema());
             token = lexical.analyze();
             analisaExpressao();
             if (token.getSimbolo().equals("sfechaparenteses")) {
+                desempilhaAteParenteses();
                 token = lexical.analyze();
             } else {
                 // TODO erro
@@ -391,6 +401,16 @@ public class AnalisadorSintatico {
             // TODO erro
             System.out.println("Erro 23");
             return;
+        }
+    }
+
+    private void desempilhaAteParenteses() {
+        for(String s : pilhaPos) {
+            if(s.equals(")")) {
+                pilhaPos.pop();
+                break;
+            }
+            pilhaPos.pop();
         }
     }
 
@@ -436,7 +456,7 @@ public class AnalisadorSintatico {
         if (token.getSimbolo().equals("sidentificador")) {
             // semantico
             if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
-                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), TabelaSimbolos.Tipo.PROCEDIMENTO, true,"");
+                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROCEDIMENTO, true,"");
                 tabelaSimbolos.push(simbolo);
 
                 // TODO geracao de código
@@ -488,7 +508,7 @@ public class AnalisadorSintatico {
         if (token.getSimbolo().equals("sidentificador")) {
             // semantico
             if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
-                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), TabelaSimbolos.Tipo.FUNCAO, true,"");
+                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.FUNCAO, true,"");
 
                 token = lexical.analyze();
                 if(token.getSimbolo().equals("sdoispontos")) {
@@ -496,9 +516,9 @@ public class AnalisadorSintatico {
                     if (token.getSimbolo().equals("sinteiro") || token.getSimbolo().equals("sbooleano")) {
                         // semantico
                         if(token.getSimbolo().equals("sinteiro")) {
-                            simbolo.setTipo(TabelaSimbolos.Tipo.FUNCAO_INTEIRA);
+                            simbolo.setTipo(Tipo.FUNCAO_INTEIRA);
                         } else {
-                            simbolo.setTipo(TabelaSimbolos.Tipo.FUNCAO_BOOLEANA);
+                            simbolo.setTipo(Tipo.FUNCAO_BOOLEANA);
                         }
 
                         tabelaSimbolos.push(simbolo);

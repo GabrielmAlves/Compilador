@@ -1,0 +1,13 @@
+package sintatico;
+
+public enum Tipo {
+    VARIAVEL,
+    VARIAVEL_INTEIRA,
+    VARIAVEL_BOOLEANA,
+    FUNCAO,
+    FUNCAO_BOOLEANA,
+    FUNCAO_INTEIRA,
+    PROCEDIMENTO,
+    PROGRAMA,
+    CONSTANTE
+}

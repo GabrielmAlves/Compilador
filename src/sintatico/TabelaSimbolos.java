@@ -45,17 +45,4 @@ public class TabelaSimbolos {
     public void setEndMemoria(String endMemoria) {
         this.endMemoria = endMemoria;
     }
-
-    protected enum Tipo {
-        VARIAVEL,
-        VARIAVEL_INTEIRA,
-        VARIAVEL_BOOLEANA,
-        FUNCAO,
-        FUNCAO_BOOLEANA,
-        FUNCAO_INTEIRA,
-        PROCEDIMENTO,
-        PROGRAMA
-
-    }
-
 }
