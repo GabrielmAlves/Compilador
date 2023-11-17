@@ -35,7 +35,7 @@ var a,b,s: inteiro;
  
  inicio  {corpo da funcao soma}
   loop;                          
-  soma:= c+a;
+  soma:= (x + 7 * 5 div (30 + y) <= (x * a + 2)) e (z > 0);
  fim;                                
                                       
 

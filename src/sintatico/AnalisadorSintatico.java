@@ -11,12 +11,13 @@ import java.util.List;
 
 public class AnalisadorSintatico {
 
-    private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\gera1.txt";
+    private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\aa.txt";
     private LexicalAnalyzer lexical;
     private Token token;
     private Deque<TabelaSimbolos> tabelaSimbolos = new ArrayDeque<>();
-    private Deque<String> pilhaPos = new ArrayDeque<>();
+    private Deque<PosFixa> pilhaPos = new ArrayDeque<>();
     private List<PosFixa> saida = new ArrayList<>();
+    private List<PosFixa> auxSaida = new ArrayList<>();
 
     public void analisa(){
 
@@ -46,7 +47,7 @@ public class AnalisadorSintatico {
                             return;
                         }
 
-                    }else {
+                    } else {
                         // TODO erro
                         System.out.println("Erro 2");
                         return;
@@ -212,9 +213,19 @@ public class AnalisadorSintatico {
         if (token.getSimbolo().equals("satribuicao")){
             token = lexical.analyze();
             analisaExpressao();
+            desempilhaFimPos();
         } else {
             chamadaProcedimento();
         }
+    }
+
+    private void desempilhaFimPos() {
+        desempilhaPos();
+        for (PosFixa p : saida) {
+            System.out.print(p.getLexema() + ' ');
+        }
+        analisaTipoExpressao();
+//        saida = new ArrayList<>();
     }
 
     private void chamadaProcedimento() {
@@ -298,6 +309,7 @@ public class AnalisadorSintatico {
         //TODO geracao de código
         token = lexical.analyze();
         analisaExpressao();
+        desempilhaFimPos();
 
         if (token.getSimbolo().equals("sfaca")) {
             //TODO geracao de código
@@ -314,6 +326,7 @@ public class AnalisadorSintatico {
     private void analisaSe() {
         token = lexical.analyze();
         analisaExpressao();
+        desempilhaFimPos();
 
         if (token.getSimbolo().equals("sentao")) {
             token = lexical.analyze();
@@ -335,17 +348,36 @@ public class AnalisadorSintatico {
                 token.getSimbolo().equals("sig") || token.getSimbolo().equals("smenor") ||
                 token.getSimbolo().equals("smenorig") || token.getSimbolo().equals("sdif")) {
 
+            PosFixa pos = new PosFixa(token.getLexema(),Tipo.RELACIONAL,4);
+            verificaPrecedencia(pos);
+
             token = lexical.analyze();
             analisaExpressaoSimples();
         }
     }
 
+    private void desempilhaPos() {
+        for (PosFixa p : pilhaPos) {
+            saida.add(p);
+            pilhaPos.pop();
+        }
+    }
+
     private void analisaExpressaoSimples() {
         if (token.getSimbolo().equals("smais") || token.getSimbolo().equals("smenos")) {
+            PosFixa pos = new PosFixa(token.getLexema(),Tipo.UNARIO,7);
+            verificaPrecedencia(pos);
             token = lexical.analyze();
         }
         analisaTermo();
         while (token.getSimbolo().equals("smais") || token.getSimbolo().equals("smenos") || token.getSimbolo().equals("sou")) {
+            if(token.getSimbolo().equals("sou")) {
+                PosFixa pos = new PosFixa(token.getLexema(),Tipo.LOGICO,1);
+                verificaPrecedencia(pos);
+            } else {
+                PosFixa pos = new PosFixa(token.getLexema(),Tipo.ARITMETICO,5);
+                verificaPrecedencia(pos);
+            }
             token = lexical.analyze();
             analisaTermo();
         }
@@ -354,6 +386,13 @@ public class AnalisadorSintatico {
     private void analisaTermo() {
         analisaFator();
         while (token.getSimbolo().equals("smult") || token.getSimbolo().equals("sdiv") || token.getSimbolo().equals("se")) {
+            if(token.getSimbolo().equals("se")) {
+                PosFixa pos = new PosFixa(token.getLexema(),Tipo.LOGICO,2);
+                verificaPrecedencia(pos);
+            } else {
+                PosFixa pos = new PosFixa(token.getLexema(),Tipo.ARITMETICO,6);
+                verificaPrecedencia(pos);
+            }
             token = lexical.analyze();
             analisaFator();
         }
@@ -377,14 +416,17 @@ public class AnalisadorSintatico {
                 return;
             }
         } else if (token.getSimbolo().equals("snumero")) {
-            PosFixa pos = new PosFixa(token.getLexema(), Tipo.CONSTANTE);
+            PosFixa pos = new PosFixa(token.getLexema(), Tipo.VARIAVEL_INTEIRA);
             saida.add(pos);
             token = lexical.analyze();
         } else if (token.getSimbolo().equals("snao")) {
+            PosFixa pos = new PosFixa(token.getLexema(),Tipo.LOGICO,3);
+            verificaPrecedencia(pos);
             token = lexical.analyze();
             analisaFator();
         } else if (token.getSimbolo().equals("sabreparenteses")) {
-            pilhaPos.push(token.getLexema());
+            PosFixa pos = new PosFixa(token.getLexema(), 0);
+            pilhaPos.push(pos);
             token = lexical.analyze();
             analisaExpressao();
             if (token.getSimbolo().equals("sfechaparenteses")) {
@@ -405,13 +447,38 @@ public class AnalisadorSintatico {
     }
 
     private void desempilhaAteParenteses() {
-        for(String s : pilhaPos) {
-            if(s.equals(")")) {
+        for(PosFixa s : pilhaPos) {
+            if(s.getLexema().equals("(")) {
                 pilhaPos.pop();
                 break;
             }
+            saida.add(s);
             pilhaPos.pop();
         }
+    }
+
+    public void verificaPrecedencia(PosFixa operador) {
+        if(pilhaPos.peek() == null ) {
+            pilhaPos.push(operador);
+            return;
+        }
+
+        if(operador.getPrecedencia() > pilhaPos.peek().getPrecedencia()) {
+            pilhaPos.push(operador);
+            return;
+        }
+
+        for (PosFixa p : pilhaPos) {
+            if(operador.getPrecedencia() <= p.getPrecedencia()) {
+                saida.add(p);
+                pilhaPos.pop();
+            } else {
+                pilhaPos.push(operador);
+                return;
+            }
+        }
+
+        pilhaPos.push(operador);
     }
 
     private TabelaSimbolos pesquisaTabela(String lexema) {
@@ -548,6 +615,61 @@ public class AnalisadorSintatico {
         }
 
         desempilha();
+    }
+
+    private boolean analisaTipoExpressao() {
+        PosFixa n1,n2;
+        while (saida.toArray().length>1) {
+            for (int i=0; i<saida.toArray().length; i++) {
+                if (saida.get(i).getTipo() == Tipo.ARITMETICO || saida.get(i).getTipo() == Tipo.RELACIONAL) {
+                    n1 = saida.get(i-2);
+                    n2 = saida.get(i-1);
+                    if(n1.getTipo() != Tipo.VARIAVEL_INTEIRA && n2.getTipo() != Tipo.VARIAVEL_INTEIRA) {
+                        return false;
+                    }
+                    if (saida.get(i).getTipo() == Tipo.ARITMETICO) {
+                        alteraSaida(i,Tipo.ARITMETICO);
+                    } else {
+                        alteraSaida(i,Tipo.RELACIONAL);
+                    }
+                    break;
+                } else if (saida.get(i).getTipo() == Tipo.LOGICO) {
+                    n1 = saida.get(i-2);
+                    n2 = saida.get(i-1);
+                    if (n1.getTipo() != Tipo.VARIAVEL_BOOLEANA && n2.getTipo() != Tipo.VARIAVEL_BOOLEANA) {
+                        return false;
+                    }
+                    alteraSaida(i,Tipo.LOGICO);
+                    break;
+                }
+            }
+            System.out.println();
+            for(PosFixa p : saida) {
+                System.out.print(p.getLexema() + " ");
+            }
+        }
+
+        return true;
+    }
+
+    private void alteraSaida(int y, Tipo tipo) {
+        auxSaida = new ArrayList<>();
+        for (int i=0 ; i<saida.toArray().length; i++) {
+            if(i == y-2) {
+                if (tipo == Tipo.ARITMETICO) {
+                    PosFixa p = new PosFixa("I",Tipo.VARIAVEL_INTEIRA);
+                    auxSaida.add(p);
+                } else {
+                    PosFixa p = new PosFixa("B",Tipo.VARIAVEL_BOOLEANA);
+                    auxSaida.add(p);
+                }
+                i = y+1;
+            }
+            if(i<saida.toArray().length) {
+                auxSaida.add(saida.get(i));
+            }
+        }
+        saida = auxSaida;
     }
 }
 

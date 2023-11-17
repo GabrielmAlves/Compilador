@@ -9,5 +9,8 @@ public enum Tipo {
     FUNCAO_INTEIRA,
     PROCEDIMENTO,
     PROGRAMA,
-    CONSTANTE
+    RELACIONAL,
+    ARITMETICO,
+    LOGICO,
+    UNARIO
 }
