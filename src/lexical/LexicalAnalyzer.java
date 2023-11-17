@@ -5,7 +5,6 @@ import java.util.*;
 
 public class LexicalAnalyzer {
 
-	//	private static String PATH = "file.txt";
 	private static final Set<Character> operadoresAritimeticos = new HashSet<>(Arrays.asList('+', '-', '*'));
 	private static final Set<Character> operadoresRelacionais = new HashSet<>(Arrays.asList('!', '<', '>', '='));
 	private static final Set<Character> pontuacoes = new HashSet<>(Arrays.asList(';', ',', '(', ')', '.'));
