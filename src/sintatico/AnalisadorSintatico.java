@@ -17,9 +17,8 @@ public class AnalisadorSintatico {
     private Deque<TabelaSimbolos> tabelaSimbolos = new ArrayDeque<>();
     private Deque<PosFixa> pilhaPos = new ArrayDeque<>();
     private List<PosFixa> saida = new ArrayList<>();
-    private List<PosFixa> auxSaida = new ArrayList<>();
 
-    public void analisa(){
+    public void analisa() {
 
         File file = new File(PATH);
         lexical = new LexicalAnalyzer(file);
@@ -44,7 +43,6 @@ public class AnalisadorSintatico {
                         } else {
                             // TODO erro
                             System.out.println("Erro 1");
-                            return;
                         }
 
                     } else {
@@ -52,18 +50,18 @@ public class AnalisadorSintatico {
                         System.out.println("Erro 2");
                         return;
                     }
-                }else {
+                } else {
                     // TODO erro
                     System.out.println("Erro 3");
                     return;
                 }
 
-            }else {
+            } else {
                 // TODO erro
                 System.out.println("Erro 4");
                 return;
             }
-        }else {
+        } else {
             // TODO erro
             System.out.println("Erro 5");
             return;
@@ -653,7 +651,7 @@ public class AnalisadorSintatico {
     }
 
     private void alteraSaida(int y, Tipo tipo) {
-        auxSaida = new ArrayList<>();
+        List<PosFixa> auxSaida = new ArrayList<>();
         for (int i=0 ; i<saida.toArray().length; i++) {
             if(i == y-2) {
                 if (tipo == Tipo.ARITMETICO) {
