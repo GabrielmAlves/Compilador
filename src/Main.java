@@ -1,4 +1,4 @@
-import lexical.LexicalAnalyzer;
+
 import sintatico.AnalisadorSintatico;
 
 public class Main {
