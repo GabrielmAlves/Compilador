@@ -2,5 +2,5 @@ programa test;
 var soma, x, y, z, a: inteiro;
 
 inicio
- soma:= x * 5 div (30 + y) <= (x * a + 2)
+ soma:= x * 5 div (-30 + y) <= (x * a + 2)
 fim.

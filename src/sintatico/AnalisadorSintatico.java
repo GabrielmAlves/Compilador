@@ -43,6 +43,7 @@ public class AnalisadorSintatico {
                         } else {
                             // TODO erro
                             System.out.println("Erro 1");
+                            return;
                         }
 
                     } else {
@@ -639,6 +640,13 @@ public class AnalisadorSintatico {
                     }
                     alteraSaida(i,Tipo.LOGICO);
                     break;
+                } else if (saida.get(i).getTipo() == Tipo.UNARIO) {
+                    n1 = saida.get(i-1);
+                    if (n1.getTipo() != Tipo.VARIAVEL_INTEIRA) {
+                        return false;
+                    }
+                    alteraSaida(i,Tipo.UNARIO);
+                    break;
                 }
             }
             System.out.println();
@@ -646,23 +654,29 @@ public class AnalisadorSintatico {
                 System.out.print(p.getLexema() + " ");
             }
         }
-
         return true;
     }
 
     private void alteraSaida(int y, Tipo tipo) {
         List<PosFixa> auxSaida = new ArrayList<>();
         for (int i=0 ; i<saida.toArray().length; i++) {
-            if(i == y-2) {
+            if(tipo == Tipo.UNARIO) {
+                if (i == y - 1) {
+                    PosFixa p = new PosFixa("I", Tipo.VARIAVEL_INTEIRA);
+                    auxSaida.add(p);
+                    i = y + 1;
+                }
+            } else if(i == y-2) {
                 if (tipo == Tipo.ARITMETICO) {
                     PosFixa p = new PosFixa("I",Tipo.VARIAVEL_INTEIRA);
                     auxSaida.add(p);
-                } else {
+                }else {
                     PosFixa p = new PosFixa("B",Tipo.VARIAVEL_BOOLEANA);
                     auxSaida.add(p);
                 }
                 i = y+1;
             }
+
             if(i<saida.toArray().length) {
                 auxSaida.add(saida.get(i));
             }
