@@ -305,20 +305,16 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void gera(int r1, String instrucao,int r2, String vazio){
-
+    private void gera(int r1, String instrucao, String var1, String var2){
+        
     }
-
 
     private void analisaEnquanto() {
         //TODO geracao de código
         int auxrot1, auxrot2;
         auxrot1 = rotulo;
-        gera(rotulo,null,'','');
+        gera(rotulo,"NULL","","");
         rotulo = rotulo + 1;
-
-
-
 
         token = lexical.analyze();
         analisaExpressao();
@@ -326,12 +322,12 @@ public class AnalisadorSintatico {
 
         if (token.getSimbolo().equals("sfaca")) {
             auxrot2 = rotulo;
-            gera('', "JMPF", rotulo,'');
+            gera(-1, "JMPF", String.valueOf(rotulo),"");
             rotulo = rotulo + 1;
             token = lexical.analyze();
             analisaComandoSimples();
-            gera('',"JMP", auxrot1,'');
-            gera(auxrot2,null,'','');
+            gera(-1,"JMP", String.valueOf(auxrot1),"");
+            gera(auxrot2,"NULL","","");
         } else {
             //TODO erro
             System.out.println("Erro 20");
@@ -512,11 +508,13 @@ public class AnalisadorSintatico {
     }
 
     private void analisaSubrotinas() {
-        int auxrot, flag;
+
+        // geracao de código
+        int auxrot = 0, flag;
         flag = 0;
         if(token.getSimbolo().equals("sprocedimento") || token.getSimbolo().equals("sfuncao")){
             auxrot = rotulo;
-            gera('',"JMP",rotulo,'');
+            gera(-1,"JMP", String.valueOf(rotulo),"");
             rotulo = rotulo +1;
             flag = 1;
 
@@ -535,13 +533,13 @@ public class AnalisadorSintatico {
                 System.out.println("Erro 24");
                 return;
             }
-            if (flag == 1){
-                gera(auxrot,null,'','');
-
-            }
         }
 
-        //TODO geracao de código
+        // geracao de código
+        if (flag == 1){
+            gera(auxrot,"NULL","","");
+
+        }
     }
 
     private void analisaDeclaracaoProcedimento() {
@@ -550,9 +548,9 @@ public class AnalisadorSintatico {
         if (token.getSimbolo().equals("sidentificador")) {
             // semantico
             if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
-                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROCEDIMENTO, true,rotulo);
+                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROCEDIMENTO, true, String.valueOf(rotulo));
                 tabelaSimbolos.push(simbolo);
-                gera(rotulo,null,'','');
+                gera(rotulo,"NULL","","");
                 rotulo = rotulo + 1;
 
                 // TODO geracao de código
@@ -604,7 +602,7 @@ public class AnalisadorSintatico {
         if (token.getSimbolo().equals("sidentificador")) {
             // semantico
             if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
-                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.FUNCAO, true,rotulo);
+                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.FUNCAO, true, String.valueOf(rotulo));
 
                 token = lexical.analyze();
                 if(token.getSimbolo().equals("sdoispontos")) {
