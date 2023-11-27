@@ -28,29 +28,18 @@ public class LexicalAnalyzer {
 	public Token analyze() {
 
 		try {
-
 			while (character.equals('{') || character.equals(' ') || character.equals('\t')) {
 				if (character.equals('{')) {
 					trataComentario(i);
 				}
 				character = pegaCaracter();
 			}
-
 			pegaToken();
-
-
-//			System.out.println(tokinho.getLexema());
-//			System.out.println(tokinho.getSimbolo());
-			//System.out.println(character);
 			return tokinho;
-
-
         } catch (Exception e) {
 			System.out.println(e.getMessage());
 			return null;
         }
-
-
 	}
 
 	private void trataComentario(int i) throws Exception {
@@ -128,91 +117,69 @@ public class LexicalAnalyzer {
         switch (id) {
             case "programa" -> {
                 tokinho = new Token("sprograma", id);
-//                this.tokens.add(token);
             }
             case "se" -> {
                 tokinho= new Token("sse", id);
-//                this.tokens.add(token);
             }
             case "entao" -> {
                 tokinho = new Token("sentao", id);
-//                this.tokens.add(token);
             }
             case "senao" -> {
 				tokinho = new Token("ssenao", id);
-//                this.tokens.add(token);
             }
             case "enquanto" -> {
 				tokinho = new Token("senquanto", id);
-//                this.tokens.add(token);
             }
             case "faca" -> {
 				tokinho = new Token("sfaca", id);
-//                this.tokens.add(token);
             }
 			case "inicio" -> {
 				tokinho = new Token("sinicio", id);
-//				this.tokens.add(token);
 			}
 			case "fim" -> {
 				tokinho = new Token("sfim", id);
-//				this.tokens.add(token);
 			}
 			case "escreva" -> {
 				tokinho = new Token("sescreva", id);
-//				this.tokens.add(token);
 			}
 			case "leia" -> {
 				tokinho = new Token("sleia", id);
-//				this.tokens.add(token);
 			}
 			case "var" -> {
 				tokinho = new Token("svar", id);
-//				this.tokens.add(token);
 			}
 			case "inteiro" -> {
 				tokinho = new Token("sinteiro", id);
-//				this.tokens.add(token);
 			}
 			case "booleano" -> {
 				tokinho = new Token("sbooleano", id);
-//				this.tokens.add(token);
 			}
 			case "verdadeiro" -> {
 				tokinho = new Token("sverdadeiro", id);
-//				this.tokens.add(token);
 			}
 			case "falso" -> {
 				tokinho = new Token("sfalso", id);
-//				this.tokens.add(token);
 			}
 			case "procedimento" -> {
 				tokinho = new Token("sprocedimento", id);
-//				this.tokens.add(token);
 			}
 			case "funcao" -> {
 				tokinho = new Token("sfuncao", id);
-//				this.tokens.add(token);
 			}
 			case "div" -> {
 				tokinho = new Token("sdiv", id);
-//				this.tokens.add(token);
 			}
 			case "e" -> {
 				tokinho = new Token("se", id);
-//				this.tokens.add(token);
 			}
 			case "ou" -> {
 				tokinho = new Token("sou", id);
-//				this.tokens.add(token);
 			}
 			case "nao" -> {
 				tokinho = new Token("snao", id);
-//				this.tokens.add(token);
 			}
 			default -> {
 				tokinho = new Token("sidentificador", id);
-//				this.tokens.add(token);
 			}
         }
 	}

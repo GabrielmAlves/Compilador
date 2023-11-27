@@ -12,5 +12,6 @@ public enum Tipo {
     RELACIONAL,
     ARITMETICO,
     LOGICO,
-    UNARIO
+    UNARIO,
+    CONSTANTE
 }

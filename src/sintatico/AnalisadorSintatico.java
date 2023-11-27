@@ -20,8 +20,9 @@ public class AnalisadorSintatico {
     private int rotulo;
     private List<Integer> memoria = new ArrayList<>();
     private int s;
+    private  int m = 0;
 
-    public void analisa() {
+    public void analisa() throws Exception {
 
         File file = new File(PATH);
         lexical = new LexicalAnalyzer(file);
@@ -45,41 +46,36 @@ public class AnalisadorSintatico {
                             System.out.println("Sucesso!");
                         } else {
                             // TODO erro
-                            System.out.println("Erro 1");
-                            return;
+                            throw new Exception("Arquivo terminou de forma incorreta");
                         }
 
                     } else {
                         // TODO erro
-                        System.out.println("Erro 2");
-                        return;
+                        throw new Exception("Experava . mas obtive " + token.getLexema());
                     }
                 } else {
                     // TODO erro
-                    System.out.println("Erro 3");
-                    return;
+                    throw new Exception("Experava ; mas obtive " + token.getLexema());
                 }
 
             } else {
                 // TODO erro
-                System.out.println("Erro 4");
-                return;
+                throw new Exception("Programa sem nome");
             }
         } else {
             // TODO erro
-            System.out.println("Erro 5");
-            return;
+            throw new Exception("Programa não iniciado");
         }
     }
 
-    private void analisaBloco(){
+    private void analisaBloco() throws Exception {
         token = lexical.analyze();
         analisaEtVariaveis();
         analisaSubrotinas();
         analisaComandos();
     }
 
-    private void analisaEtVariaveis() {
+    private void analisaEtVariaveis() throws Exception {
         if (token.getSimbolo().equals("svar")) {
             token = lexical.analyze();
             if (token.getSimbolo().equals("sidentificador")) {
@@ -89,26 +85,26 @@ public class AnalisadorSintatico {
                         token = lexical.analyze();
                     } else {
                         //TODO erro
-                        System.out.println("Erro 6");
-                        return;
+                        throw new Exception("Esperava ; mas obtive " + token.getLexema());
                     }
                 }
             } else {
                 //TODO erro
-                System.out.println("Erro 7");
-                return;
+                throw new Exception("Variavel sem nome");
             }
         }
 
     }
 
-    private void analisaVariaveis() {
+    private void analisaVariaveis() throws Exception {
+        int contador = 0;
         do{
             if (token.getSimbolo().equals("sidentificador")) {
                 // semantico
                 if(!pesquisaDuplicidade(token.getLexema())) {
-                    TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.VARIAVEL,false,"");
+                    TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.VARIAVEL,false,String.valueOf(m+contador));
                     tabelaSimbolos.push(simbolo);
+                    contador++;
 
                     token = lexical.analyze();
                     if (token.getSimbolo().equals("svirgula") || token.getSimbolo().equals("sdoispontos")) {
@@ -122,21 +118,19 @@ public class AnalisadorSintatico {
                         }
                     } else {
                         //TODO erro
-                        System.out.println("Erro 9");
-                        return;
+                        throw new Exception("Esperava , ou : mas obtive " + token.getLexema());
                     }
                 } else {
                     //TODO erro
-                    System.out.println("Erro duplicidade tabela de simbolos");
-                    return;
+                    throw new Exception("Variavel duplicada");
                 }
             } else {
                 //TODO erro
-                System.out.println("Erro 10");
-                return;
+                throw new Exception("Variavel sem nome");
             }
         } while (!token.getSimbolo().equals("sdoispontos"));
         token = lexical.analyze();
+        gera(-1,"ALLOC",String.valueOf(m),String.valueOf(contador));
         analisaTipo();
     }
 
@@ -152,11 +146,10 @@ public class AnalisadorSintatico {
         return false;
     }
 
-    private void analisaTipo() {
+    private void analisaTipo() throws Exception {
         if (!token.getSimbolo().equals("sinteiro") && !token.getSimbolo().equals("sbooleano")) {
             //TODO erro
-            System.out.println("Erro 11");
-            return;
+            throw new Exception("Tipo " + token.getLexema() + " não permitido");
         }
         colocaTipoTabela(token.getLexema());
         token = lexical.analyze();
@@ -172,10 +165,9 @@ public class AnalisadorSintatico {
                 }
             }
         }
-
     }
 
-    private void analisaComandos() {
+    private void analisaComandos() throws Exception {
         if (token.getSimbolo().equals("sinicio")){
             token = lexical.analyze();
             analisaComandoSimples();
@@ -187,19 +179,17 @@ public class AnalisadorSintatico {
                     }
                 } else {
                     //TODO erro
-                    System.out.println("Erro 12");
-                    return;
+                    throw new Exception("Esperava ; mas obtive " + token.getLexema());
                 }
             }
             token = lexical.analyze();
-        } else{
+        } else {
             //TODO erro
-            System.out.println("Erro 13");
-            return;
+            throw new Exception("Bloco de comandos não iniciado");
         }
     }
 
-    private void analisaComandoSimples() {
+    private void analisaComandoSimples() throws Exception {
         switch (token.getSimbolo()) {
             case "sidentificador" -> analisaAtribChprocedimento();
             case "sse" -> analisaSe();
@@ -210,7 +200,7 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void analisaAtribChprocedimento() {
+    private void analisaAtribChprocedimento() throws Exception {
         token = lexical.analyze();
         if (token.getSimbolo().equals("satribuicao")){
             token = lexical.analyze();
@@ -227,6 +217,7 @@ public class AnalisadorSintatico {
             System.out.print(p.getLexema() + ' ');
         }
         analisaTipoExpressao();
+        geraExpressao();
 //        saida = new ArrayList<>();
     }
 
@@ -234,7 +225,7 @@ public class AnalisadorSintatico {
         // TODO não sei
     }
 
-    private void analisaLeia() {
+    private void analisaLeia() throws Exception {
         token = lexical.analyze();
         if(token.getSimbolo().equals("sabreparenteses")){
             token = lexical.analyze();
@@ -246,23 +237,19 @@ public class AnalisadorSintatico {
                         token = lexical.analyze();
                     } else {
                         //TODO erro
-                        System.out.println("Erro 14");
-                        return;
+                        throw new Exception("Esperava ) mas obtive " + token.getLexema());
                     }
                 } else {
                     //TODO erro
-                    System.out.println("Erro não achou o identificador na tabela");
-                    return;
+                    throw new Exception("Variavel " + token.getLexema() + "  declarada");
                 }
             } else {
                 //TODO erro
-                System.out.println("Erro 15");
-                return;
+                throw new Exception("Variavel " + token.getLexema() + "  não declarada");
             }
         } else {
             //TODO erro
-            System.out.println("Erro 16");
-            return;
+            throw new Exception("Esperava ( mas obtive " + token.getLexema());
         }
     }
 
@@ -275,7 +262,7 @@ public class AnalisadorSintatico {
         return false;
     }
 
-    private void analisaEscreva() {
+    private void analisaEscreva() throws Exception {
         token = lexical.analyze();
         if (token.getSimbolo().equals("sabreparenteses")){
             token = lexical.analyze();
@@ -287,27 +274,23 @@ public class AnalisadorSintatico {
                         token = lexical.analyze();
                     } else {
                         //TODO erro
-                        System.out.println("Erro 17");
-                        return;
+                        throw new Exception("Esperava ) mas obtive " + token.getLexema());
                     }
                 } else {
                     //TODO erro
-                    System.out.println("Erro não achou o identificador na tabela");
-                    return;
+                    throw new Exception("Variavel " + token.getLexema() +  " não declarada");
                 }
             } else {
                 //TODO erro
-                System.out.println("Erro 18");
-                return;
+                throw new Exception("Variavel " + token.getLexema() +  " não declarada");
             }
         } else {
             //TODO erro
-            System.out.println("Erro 19");
-            return;
+            throw new Exception("Esperava ( mas obtive " + token.getLexema());
         }
     }
 
-    private void analisaEnquanto() {
+    private void analisaEnquanto() throws Exception {
         //TODO geracao de código
         int auxrot1, auxrot2;
         auxrot1 = rotulo;
@@ -317,6 +300,7 @@ public class AnalisadorSintatico {
         token = lexical.analyze();
         analisaExpressao();
         desempilhaFimPos();
+        geraExpressao();
 
         if (token.getSimbolo().equals("sfaca")) {
             auxrot2 = rotulo;
@@ -328,15 +312,15 @@ public class AnalisadorSintatico {
             gera(auxrot2,"NULL","","");
         } else {
             //TODO erro
-            System.out.println("Erro 20");
-            return;
+            throw new Exception("Loop não iniciado");
         }
     }
 
-    private void analisaSe() {
+    private void analisaSe() throws Exception {
         token = lexical.analyze();
         analisaExpressao();
         desempilhaFimPos();
+        geraExpressao();
 
         if (token.getSimbolo().equals("sentao")) {
             token = lexical.analyze();
@@ -347,12 +331,11 @@ public class AnalisadorSintatico {
             }
         } else {
             //TODO erro
-            System.out.println("Erro 21");
-            return;
+            throw new Exception("Esperava \"entao\" mas obtive " + token.getLexema());
         }
     }
 
-    private void analisaExpressao() {
+    private void analisaExpressao() throws Exception {
         analisaExpressaoSimples();
         if (token.getSimbolo().equals("smaior") || token.getSimbolo().equals("smaiorig") ||
                 token.getSimbolo().equals("sig") || token.getSimbolo().equals("smenor") ||
@@ -373,7 +356,7 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void analisaExpressaoSimples() {
+    private void analisaExpressaoSimples() throws Exception {
         if (token.getSimbolo().equals("smais") || token.getSimbolo().equals("smenos")) {
             PosFixa pos = new PosFixa(token.getLexema(),Tipo.UNARIO,7);
             verificaPrecedencia(pos);
@@ -393,7 +376,7 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void analisaTermo() {
+    private void analisaTermo() throws Exception {
         analisaFator();
         while (token.getSimbolo().equals("smult") || token.getSimbolo().equals("sdiv") || token.getSimbolo().equals("se")) {
             if(token.getSimbolo().equals("se")) {
@@ -408,7 +391,7 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void analisaFator() {
+    private void analisaFator() throws Exception {
         if(token.getSimbolo().equals("sidentificador")) {
             // semantico
             TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
@@ -422,11 +405,10 @@ public class AnalisadorSintatico {
                 }
             } else {
                 // TODO erro
-                System.out.println("Erro não achou na tabela de simbolos");
-                return;
+                throw new Exception("Variavel " + token.getLexema() + " nao declarada");
             }
         } else if (token.getSimbolo().equals("snumero")) {
-            PosFixa pos = new PosFixa(token.getLexema(), Tipo.VARIAVEL_INTEIRA);
+            PosFixa pos = new PosFixa(token.getLexema(), Tipo.CONSTANTE);
             saida.add(pos);
             token = lexical.analyze();
         } else if (token.getSimbolo().equals("snao")) {
@@ -444,15 +426,13 @@ public class AnalisadorSintatico {
                 token = lexical.analyze();
             } else {
                 // TODO erro
-                System.out.println("Erro 22");
-                return;
+                throw new Exception("Esperava ) mas obtive " + token.getLexema());
             }
         } else if (token.getLexema().equals("verdadeiro") || token.getLexema().equals("falso")) {
             token = lexical.analyze();
         } else {
             // TODO erro
-            System.out.println("Erro 23");
-            return;
+            throw new Exception("Fator não identificado");
         }
     }
 
@@ -505,7 +485,7 @@ public class AnalisadorSintatico {
         // TODO não sei
     }
 
-    private void analisaSubrotinas() {
+    private void analisaSubrotinas() throws Exception {
 
         // geracao de código
         int auxrot = 0, flag;
@@ -528,25 +508,24 @@ public class AnalisadorSintatico {
                 token = lexical.analyze();
             } else {
                 // TODO erro
-                System.out.println("Erro 24");
-                return;
+                throw new Exception("Esperava ; mas obtive " + token.getLexema());
             }
         }
 
         // geracao de código
-        if (flag == 1){
+        if (flag == 1) {
             gera(auxrot,"NULL","","");
 
         }
     }
 
-    private void analisaDeclaracaoProcedimento() {
+    private void analisaDeclaracaoProcedimento() throws Exception {
         token = lexical.analyze();
         //semantico
         if (token.getSimbolo().equals("sidentificador")) {
             // semantico
             if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
-                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROCEDIMENTO, true, String.valueOf(rotulo));
+                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROCEDIMENTO, true, "L" + rotulo);
                 tabelaSimbolos.push(simbolo);
                 gera(rotulo,"NULL","","");
                 rotulo = rotulo + 1;
@@ -558,18 +537,15 @@ public class AnalisadorSintatico {
                     analisaBloco();
                 } else {
                     // TODO erro
-                    System.out.println("Erro 25");
-                    return;
+                    throw new Exception("Esperava ; mas obtive " + token.getLexema());
                 }
             } else {
                 // TODO erro
-                System.out.println("Erro não achou procedimento na tabela de simbolo");
-                return;
+                throw new Exception("Variavel " + token.getLexema() + " nao declarada");
             }
         } else {
             // TODO erro
-            System.out.println("Erro 26");
-            return;
+            throw new Exception("Variavel " + token.getLexema() + " nao declarada");
         }
 
         desempilha();
@@ -578,7 +554,7 @@ public class AnalisadorSintatico {
     private void desempilha() {
         for (TabelaSimbolos simbolo : tabelaSimbolos) {
             if(simbolo.getEscopo()) {
-//                tabelaSimbolos.pop();
+                simbolo.setEscopo(false);
                 break;
             }
             tabelaSimbolos.pop();
@@ -594,7 +570,7 @@ public class AnalisadorSintatico {
         return false;
     }
 
-    private void analisaDeclaracaoFuncao() {
+    private void analisaDeclaracaoFuncao() throws Exception {
         token = lexical.analyze();
 
         if (token.getSimbolo().equals("sidentificador")) {
@@ -620,23 +596,19 @@ public class AnalisadorSintatico {
                         }
                     } else {
                         // TODO erro
-                        System.out.println("Erro 27");
-                        return;
+                        throw new Exception("Tipo " + token.getLexema() + " nao permitido");
                     }
                 } else {
                     // TODO erro
-                    System.out.println("Erro 28");
-                    return;
+                    throw new Exception("Esperava : mas obtive " + token.getLexema());
                 }
             } else {
                 // TODO erro
-                System.out.println("Erro função duplicada na tabela de simbolos");
-                return;
+                throw new Exception("Variavel " + token.getLexema() + " nao declarada");
             }
         } else {
             // TODO erro
-            System.out.println("Erro 29");
-            return;
+            throw new Exception("Variavel " + token.getLexema() + " nao declarada");
         }
 
         desempilha();
@@ -711,9 +683,9 @@ public class AnalisadorSintatico {
     }
 
     private void gera(int r, String instrucao, String var1, String var2) {
-        String rotulo = "";
+        String rot = "";
         if(r != -1) {
-            rotulo  = "L" + r;
+            rot  = "L" + r;
         }
 
         int num1;
@@ -875,6 +847,44 @@ public class AnalisadorSintatico {
                 // i:=M[s]
                 s--;
                 break;
+            default:
+                System.out.println("Instrução não encontrada");
+        }
+    }
+
+    private void geraExpressao() {
+        System.out.println(saida);
+
+        for(PosFixa s : saida) {
+            TabelaSimbolos simbolo = pesquisaTabela(s.getLexema());
+            assert simbolo != null;
+            if (simbolo.getTipo() == Tipo.VARIAVEL_BOOLEANA || simbolo.getTipo() == Tipo.VARIAVEL_INTEIRA) {
+                gera(-1, "LDV",simbolo.getEndMemoria(),"");
+            } else if (simbolo.getTipo() == Tipo.CONSTANTE) {
+                gera(-1, "LDC",simbolo.getLexema(),"");
+            } else if (simbolo.getTipo() == Tipo.ARITMETICO) {
+                switch (simbolo.getLexema()) {
+                    case "+" -> gera(-1, "ADD", "", "");
+                    case "-" -> gera(-1, "SUB", "", "");
+                    case "*" -> gera(-1, "MULT", "", "");
+                    case "div" -> gera(-1, "DIVI", "", "");
+                }
+            } else if (simbolo.getTipo() == Tipo.RELACIONAL) {
+                switch (simbolo.getLexema()) {
+                    case ">" -> gera(-1, "CMA", "", "");
+                    case "<" -> gera(-1, "CME", "", "");
+                    case "=" -> gera(-1, "CEQ", "", "");
+                    case "!=" -> gera(-1, "CDIF", "", "");
+                    case ">=" -> gera(-1, "CMEQ", "", "");
+                    case "<=" -> gera(-1, "CMAQ", "", "");
+                }
+            } else if (simbolo.getTipo() == Tipo.LOGICO) {
+                switch (simbolo.getLexema()) {
+                    case "e" -> gera(-1, "AND", "", "");
+                    case "ou" -> gera(-1, "OR", "", "");
+                    case "nao" -> gera(-1, "NEG", "", "");
+                }
+            }
         }
     }
 
