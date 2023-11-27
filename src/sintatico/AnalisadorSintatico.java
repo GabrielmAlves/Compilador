@@ -20,7 +20,7 @@ public class AnalisadorSintatico {
     private int rotulo;
     private List<Integer> memoria = new ArrayList<>();
     private int s;
-    private  int m = 0;
+    private int m = 0;
 
     public void analisa() throws Exception {
 
