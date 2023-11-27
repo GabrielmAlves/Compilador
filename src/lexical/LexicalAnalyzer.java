@@ -290,7 +290,7 @@ public class LexicalAnalyzer {
 	}
 
 	// função para pegar linhas com conteudo
-	private boolean pegaLinha() throws Exception {
+	private boolean pegaLinha() {
 		line = scanner.nextLine();
 		while (line.isBlank()) {
 			if (!scanner.hasNextLine()) {

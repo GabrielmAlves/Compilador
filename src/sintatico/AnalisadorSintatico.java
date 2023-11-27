@@ -131,6 +131,7 @@ public class AnalisadorSintatico {
         } while (!token.getSimbolo().equals("sdoispontos"));
         token = lexical.analyze();
         gera(-1,"ALLOC",String.valueOf(m),String.valueOf(contador));
+        m = m + contador;
         analisaTipo();
     }
 
