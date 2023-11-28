@@ -1,15 +1,8 @@
-	START 
-	ALLOC 0,5
-	LDV 1
+	START
+	ALLOC 1,5
+	LDV 2
 	LDC 5
 	MULT 
 	LDC 30
-	LDV 2
-	ADD 
 	DIVI 
-	LDV 1
-	LDV 4
-	MULT 
-	LDC 2
-	ADD 
-	CMAQ 
+	STR 1
