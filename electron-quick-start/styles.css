@@ -1,0 +1,141 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  padding: 20px;
+  background-color: #fff;
+  font-size: 16px;
+  background-color: #111927;
+  background-image: radial-gradient(at 47% 33%, #3703a6, transparent 59%),
+    radial-gradient(at 82% 65%, hsl(218, 39%, 11%) 0, transparent 55%);
+}
+
+#fileArea {
+  width: "100%";
+  display: flex;
+  justify-content: space-between;
+}
+
+#fileArea label {
+  font-size: 1rem;
+  padding: 10px 20px;
+  font-weight: bold;
+  color: #fff;
+  transition: 0.3s ease;
+  border: 1px solid #3703a6;
+  background-color: #3703a6;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+#fileArea label:hover {
+  background-color: #4214a7;
+  box-shadow: 1px 1px 30px #fff;
+}
+
+#fileArea input {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  z-index: -1;
+}
+
+button {
+  padding: 8px 0;
+  color: #fff;
+  background-color: #3703a6;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+button:hover {
+  background-color: #4214a7;
+  box-shadow: 1px 1px 30px #fff;
+}
+
+textarea {
+  resize: none;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(17, 25, 40, 0.75);
+  border-radius: 12px;
+  border: 1px solid #3703a6;
+  color: #fff;
+  padding: 8px;
+  margin-bottom: 18px;
+}
+
+textarea:focus {
+  border: 1px solid white;
+}
+
+#fileArea {
+  margin-bottom: 18px;
+}
+
+.lineAndCol {
+  border: 1px solid #3703a6;
+  background-color: #3703a6;
+  color: #fff;
+  border-radius: 10px;
+  padding: 3px 5px;
+  font-size: 1.2em;
+  margin-top: 18px;
+  width: 30px;
+}
+
+.area1 {
+  width: 65vw;
+}
+
+.area1 label {
+  color: #fff;
+}
+
+.area1 input {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(17, 25, 40, 0.75);
+  border-radius: 12px;
+  border: 1px solid #3703a6;
+}
+
+.area2 {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.progressBar {
+  height: 40px;
+}
+
+.edit {
+  padding: 10px 20px;
+}
+
+#buttomArea {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  row-gap: 10;
+  width: 92.5vw;
+  margin-top: 18px;
+}
+
+#buttomArea div {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+#buttomArea div input {
+  width: "100%";
+  padding: 12px 0;
+}
