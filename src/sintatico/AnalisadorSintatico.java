@@ -3,15 +3,17 @@ package sintatico;
 import lexical.LexicalAnalyzer;
 import lexical.Token;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 public class AnalisadorSintatico {
 
-    private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\aa.txt";
+    private static final String PATH ="D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\testes\\aa.txt";
+    private static final String PATH_CODIGO = "D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\obj\\cod.obj";
+    private final File fileCod = new File(PATH_CODIGO);
     private LexicalAnalyzer lexical;
     private Token token;
     private Deque<TabelaSimbolos> tabelaSimbolos = new ArrayDeque<>();
@@ -30,6 +32,7 @@ public class AnalisadorSintatico {
         token = lexical.analyze();
 
         if(token.getSimbolo().equals("sprograma")){
+            gera(-1,"START","","");
             token = lexical.analyze();
             if(token.getSimbolo().equals("sidentificador")) {
                 // semantico
@@ -207,6 +210,7 @@ public class AnalisadorSintatico {
             token = lexical.analyze();
             analisaExpressao();
             desempilhaFimPos();
+            geraExpressao();
         } else {
             chamadaProcedimento();
         }
@@ -217,8 +221,7 @@ public class AnalisadorSintatico {
         for (PosFixa p : saida) {
             System.out.print(p.getLexema() + ' ');
         }
-        analisaTipoExpressao();
-        geraExpressao();
+        // analisaTipoExpressao();
 //        saida = new ArrayList<>();
     }
 
@@ -684,172 +687,188 @@ public class AnalisadorSintatico {
     }
 
     private void gera(int r, String instrucao, String var1, String var2) {
-        String rot = "";
-        if(r != -1) {
-            rot  = "L" + r;
-        }
+        try {
+            FileWriter fileWriter = new FileWriter(fileCod, true);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-        int num1;
-        int num2;
-        int result;
-        switch (instrucao) {
-            case "LDC" :
-                s++;
-                memoria.set(s, Integer.valueOf(var1));
-                break;
-            case "LDV":
-                s++;
-                memoria.set(s, memoria.get(Integer.parseInt(var1)));
-                break;
-            case "ADD":
-                num1 = memoria.get(s-1);
-                num2 = memoria.get(s);
-                result = num1 + num2;
-                memoria.set(s-1, result);
-                s--;
-                break;
-            case "SUB":
-                num1 = memoria.get(s-1);
-                num2 = memoria.get(s);
-                result = num1 - num2;
-                memoria.set(s-1, result);
-                s--;
-                break;
-            case "MULT":
-                num1 = memoria.get(s-1);
-                num2 = memoria.get(s);
-                result = num1 * num2;
-                memoria.set(s-1, result);
-                s--;
-                break;
-            case "DIVI":
-                num1 = memoria.get(s-1);
-                num2 = memoria.get(s);
-                result = num1 / num2;
-                memoria.set(s-1, result);
-                s--;
-                break;
-            case "INV":
-                memoria.set(s, -memoria.get(s));
-                break;
-            case "AND":
-                if(memoria.get(s-1) == 1 && memoria.get(s) == 1) {
-                    memoria.set(s-1, 1);
-                } else {
-                    memoria.set(s-1, 0);
-                }
-                s--;
-                break;
-            case "OR":
-                if(memoria.get(s-1) == 1 || memoria.get(s) == 1) {
-                    memoria.set(s-1, 1);
-                } else {
-                    memoria.set(s-1, 0);
-                }
-                s--;
-                break;
-            case "NEG":
-                memoria.set(s, 1-memoria.get(s));
-                break;
-            case "CME":
-                if(memoria.get(s-1) < memoria.get(s-1)) {
-                    memoria.set(s-1, 1);
-                } else {
-                    memoria.set(s-1, 0);
-                }
-                s--;
-                break;
-            case "CMA":
-                if(memoria.get(s-1) > memoria.get(s-1)) {
-                    memoria.set(s-1, 1);
-                } else {
-                    memoria.set(s-1, 0);
-                }
-                s--;
-                break;
-            case "CEQ":
-                if(memoria.get(s-1) == memoria.get(s-1)) {
-                    memoria.set(s-1, 1);
-                } else {
-                    memoria.set(s-1, 0);
-                }
-                s--;
-                break;
-            case "CDIF":
-                if(memoria.get(s-1) != memoria.get(s-1)) {
-                    memoria.set(s-1, 1);
-                } else {
-                    memoria.set(s-1, 0);
-                }
-                s--;
-                break;
-            case "CMEQ":
-                if(memoria.get(s-1) <= memoria.get(s-1)) {
-                    memoria.set(s-1, 1);
-                } else {
-                    memoria.set(s-1, 0);
-                }
-                s--;
-                break;
-            case "CMAQ":
-                if(memoria.get(s-1) >= memoria.get(s-1)) {
-                    memoria.set(s-1, 1);
-                } else {
-                    memoria.set(s-1, 0);
-                }
-                s--;
-                break;
-            case "STR":
-                memoria.set(Integer.parseInt(var1), memoria.get(s));
-                s--;
-                break;
-            case "JMP":
-                // i:=p
-                break;
-            case "JMPF":
-                if(memoria.get(s) == 0) {
-                    // i:=p
-                } else {
-                    // i++
-                }
-                s--;
-                break;
-            case "RD":
-                s++;
-                memoria.set(s, Integer.parseInt(var1));
-                break;
-            case "PRN":
-                System.out.println(memoria.get(s));
-                break;
-            case "START":
-                s = -1;
-                break;
-            case "HLT":
-                // para exec da maquina virtual
-                break;
-            case "ALLOC":
-                for(int k = 0; k < Integer.parseInt(var2); k++) {
+            String rot = "";
+            if (r != -1) {
+                rot = "L" + r;
+            }
+
+            int num1;
+            int num2;
+            int result;
+
+            if (!Objects.equals(var2, "")) {
+                bufferedWriter.write(rot + "\t" + instrucao + " " + var1 + "," + var2 + "\n");
+            } else {
+                bufferedWriter.write(rot + "\t" + instrucao + " " + var1 + "\n");
+            }
+
+            bufferedWriter.close();
+            /*
+            switch (instrucao) {
+                case "LDC":
                     s++;
-                    memoria.set(s, memoria.get(Integer.parseInt(var1) + k));
-                }
-                break;
-            case "DALLOC":
-                for(int k = Integer.parseInt(var2) - 1; k >= 0 ; k--) {
-                    memoria.set(Integer.parseInt(var1) + k, memoria.get(s));
+                    memoria.set(s, Integer.valueOf(var1));
+                    break;
+                case "LDV":
+                    s++;
+                    memoria.set(s, memoria.get(Integer.parseInt(var1)));
+                    break;
+                case "ADD":
+                    num1 = memoria.get(s - 1);
+                    num2 = memoria.get(s);
+                    result = num1 + num2;
+                    memoria.set(s - 1, result);
                     s--;
-                }
-                break;
-            case "CALL":
-                s++;
-                // M[s]:=i+1
-                // i:=p
-                break;
-            case "RETURN":
-                // i:=M[s]
-                s--;
-                break;
-            default:
-                System.out.println("Instrução não encontrada");
+                    break;
+                case "SUB":
+                    num1 = memoria.get(s - 1);
+                    num2 = memoria.get(s);
+                    result = num1 - num2;
+                    memoria.set(s - 1, result);
+                    s--;
+                    break;
+                case "MULT":
+                    num1 = memoria.get(s - 1);
+                    num2 = memoria.get(s);
+                    result = num1 * num2;
+                    memoria.set(s - 1, result);
+                    s--;
+                    break;
+                case "DIVI":
+                    num1 = memoria.get(s - 1);
+                    num2 = memoria.get(s);
+                    result = num1 / num2;
+                    memoria.set(s - 1, result);
+                    s--;
+                    break;
+                case "INV":
+                    memoria.set(s, -memoria.get(s));
+                    break;
+                case "AND":
+                    if (memoria.get(s - 1) == 1 && memoria.get(s) == 1) {
+                        memoria.set(s - 1, 1);
+                    } else {
+                        memoria.set(s - 1, 0);
+                    }
+                    s--;
+                    break;
+                case "OR":
+                    if (memoria.get(s - 1) == 1 || memoria.get(s) == 1) {
+                        memoria.set(s - 1, 1);
+                    } else {
+                        memoria.set(s - 1, 0);
+                    }
+                    s--;
+                    break;
+                case "NEG":
+                    memoria.set(s, 1 - memoria.get(s));
+                    break;
+                case "CME":
+                    if (memoria.get(s - 1) < memoria.get(s - 1)) {
+                        memoria.set(s - 1, 1);
+                    } else {
+                        memoria.set(s - 1, 0);
+                    }
+                    s--;
+                    break;
+                case "CMA":
+                    if (memoria.get(s - 1) > memoria.get(s - 1)) {
+                        memoria.set(s - 1, 1);
+                    } else {
+                        memoria.set(s - 1, 0);
+                    }
+                    s--;
+                    break;
+                case "CEQ":
+                    if (memoria.get(s - 1) == memoria.get(s - 1)) {
+                        memoria.set(s - 1, 1);
+                    } else {
+                        memoria.set(s - 1, 0);
+                    }
+                    s--;
+                    break;
+                case "CDIF":
+                    if (memoria.get(s - 1) != memoria.get(s - 1)) {
+                        memoria.set(s - 1, 1);
+                    } else {
+                        memoria.set(s - 1, 0);
+                    }
+                    s--;
+                    break;
+                case "CMEQ":
+                    if (memoria.get(s - 1) <= memoria.get(s - 1)) {
+                        memoria.set(s - 1, 1);
+                    } else {
+                        memoria.set(s - 1, 0);
+                    }
+                    s--;
+                    break;
+                case "CMAQ":
+                    if (memoria.get(s - 1) >= memoria.get(s - 1)) {
+                        memoria.set(s - 1, 1);
+                    } else {
+                        memoria.set(s - 1, 0);
+                    }
+                    s--;
+                    break;
+                case "STR":
+                    memoria.set(Integer.parseInt(var1), memoria.get(s));
+                    s--;
+                    break;
+                case "JMP":
+                    // i:=p
+                    break;
+                case "JMPF":
+                    if (memoria.get(s) == 0) {
+                        // i:=p
+                    } else {
+                        // i++
+                    }
+                    s--;
+                    break;
+                case "RD":
+                    s++;
+                    memoria.set(s, Integer.parseInt(var1));
+                    break;
+                case "PRN":
+                    System.out.println(memoria.get(s));
+                    break;
+                case "START":
+                    s = -1;
+                    break;
+                case "HLT":
+                    // para exec da maquina virtual
+                    break;
+                case "ALLOC":
+                    for (int k = 0; k < Integer.parseInt(var2); k++) {
+                        s++;
+                        memoria.set(s, memoria.get(Integer.parseInt(var1) + k));
+                    }
+                    break;
+                case "DALLOC":
+                    for (int k = Integer.parseInt(var2) - 1; k >= 0; k--) {
+                        memoria.set(Integer.parseInt(var1) + k, memoria.get(s));
+                        s--;
+                    }
+                    break;
+                case "CALL":
+                    s++;
+                    // M[s]:=i+1
+                    // i:=p
+                    break;
+                case "RETURN":
+                    // i:=M[s]
+                    s--;
+                    break;
+                default:
+                    System.out.println("Instrução não encontrada");
+            } */
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -857,21 +876,21 @@ public class AnalisadorSintatico {
         System.out.println(saida);
 
         for(PosFixa s : saida) {
-            TabelaSimbolos simbolo = pesquisaTabela(s.getLexema());
-            assert simbolo != null;
-            if (simbolo.getTipo() == Tipo.VARIAVEL_BOOLEANA || simbolo.getTipo() == Tipo.VARIAVEL_INTEIRA) {
+            if (s.getTipo() == Tipo.VARIAVEL_BOOLEANA || s.getTipo() == Tipo.VARIAVEL_INTEIRA) {
+                TabelaSimbolos simbolo = pesquisaTabela(s.getLexema());
+                assert simbolo != null;
                 gera(-1, "LDV",simbolo.getEndMemoria(),"");
-            } else if (simbolo.getTipo() == Tipo.CONSTANTE) {
-                gera(-1, "LDC",simbolo.getLexema(),"");
-            } else if (simbolo.getTipo() == Tipo.ARITMETICO) {
-                switch (simbolo.getLexema()) {
+            } else if (s.getTipo() == Tipo.CONSTANTE) {
+                gera(-1, "LDC",s.getLexema(),"");
+            } else if (s.getTipo() == Tipo.ARITMETICO) {
+                switch (s.getLexema()) {
                     case "+" -> gera(-1, "ADD", "", "");
                     case "-" -> gera(-1, "SUB", "", "");
                     case "*" -> gera(-1, "MULT", "", "");
                     case "div" -> gera(-1, "DIVI", "", "");
                 }
-            } else if (simbolo.getTipo() == Tipo.RELACIONAL) {
-                switch (simbolo.getLexema()) {
+            } else if (s.getTipo() == Tipo.RELACIONAL) {
+                switch (s.getLexema()) {
                     case ">" -> gera(-1, "CMA", "", "");
                     case "<" -> gera(-1, "CME", "", "");
                     case "=" -> gera(-1, "CEQ", "", "");
@@ -879,8 +898,8 @@ public class AnalisadorSintatico {
                     case ">=" -> gera(-1, "CMEQ", "", "");
                     case "<=" -> gera(-1, "CMAQ", "", "");
                 }
-            } else if (simbolo.getTipo() == Tipo.LOGICO) {
-                switch (simbolo.getLexema()) {
+            } else if (s.getTipo() == Tipo.LOGICO) {
+                switch (s.getLexema()) {
                     case "e" -> gera(-1, "AND", "", "");
                     case "ou" -> gera(-1, "OR", "", "");
                     case "nao" -> gera(-1, "NEG", "", "");
