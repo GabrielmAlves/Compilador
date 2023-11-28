@@ -172,7 +172,7 @@ public class AnalisadorSintatico {
     }
 
     private void analisaComandos() throws Exception {
-        if (token.getSimbolo().equals("sinicio")){
+        if (token.getSimbolo().equals("sinicio")) {
             token = lexical.analyze();
             analisaComandoSimples();
             while (!token.getSimbolo().equals("sfim")){
@@ -522,7 +522,6 @@ public class AnalisadorSintatico {
         // geracao de código
         if (flag == 1) {
             gera(auxrot,"NULL","","");
-
         }
     }
 
@@ -584,6 +583,9 @@ public class AnalisadorSintatico {
             // semantico
             if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
                 TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.FUNCAO, true, String.valueOf(rotulo));
+
+                gera(rotulo,"NULL","","");
+                rotulo = rotulo + 1;
 
                 token = lexical.analyze();
                 if(token.getSimbolo().equals("sdoispontos")) {
