@@ -11,8 +11,8 @@ import java.util.*;
 
 public class AnalisadorSintatico {
 
-    private static final String PATH ="C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\testes\\aa.txt";
-    private static final String PATH_CODIGO = "C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\obj\\cod.obj";
+    private static final String PATH ="D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\testes\\aa.txt";
+    private static final String PATH_CODIGO = "D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\obj\\cod.obj";
     private final File fileCod = new File(PATH_CODIGO);
     private LexicalAnalyzer lexical;
     private Token token;
@@ -46,6 +46,10 @@ public class AnalisadorSintatico {
                         token = lexical.analyze();
                         if(token == null) {
                             // TODO sucesso
+                            int n = contaVariaveis();
+                            gera(-1,"DALLOC",String.valueOf(m-n),String.valueOf(n));
+                            m = m - n;
+                            gera(-1,"HLT","","");
                             System.out.println("Sucesso!");
                         } else {
                             // TODO erro
@@ -206,13 +210,13 @@ public class AnalisadorSintatico {
 
     private void analisaAtribChprocedimento() throws Exception {
         TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
+        assert simbolo != null;
         token = lexical.analyze();
         if (token.getSimbolo().equals("satribuicao")){
             token = lexical.analyze();
             analisaExpressao();
             desempilhaFimPos();
             geraExpressao();
-            assert simbolo != null;
             gera(-1, "STR", simbolo.getEndMemoria(),"");
         } else {
             chamadaProcedimento(simbolo);
@@ -225,7 +229,6 @@ public class AnalisadorSintatico {
             System.out.print(p.getLexema() + ' ');
         }
         // analisaTipoExpressao();
-//        saida = new ArrayList<>();
     }
 
     private void chamadaProcedimento(TabelaSimbolos simbolo) {
@@ -320,13 +323,13 @@ public class AnalisadorSintatico {
 
         if (token.getSimbolo().equals("sfaca")) {
             auxrot2 = rotulo;
-            gera(-1, "JMPF", String.valueOf(rotulo),"");
+            gera(-1, "JMPF", "L" + rotulo,"");
             rotulo = rotulo + 1;
 
             token = lexical.analyze();
             analisaComandoSimples();
 
-            gera(-1,"JMP", String.valueOf(auxrot1),"");
+            gera(-1,"JMP", "L" + auxrot1,"");
             gera(auxrot2,"NULL","","");
         } else {
             //TODO erro
@@ -342,7 +345,7 @@ public class AnalisadorSintatico {
 
         int auxrot = rotulo;
         int auxrot2 = 0;
-        gera(-1, "JMPF", String.valueOf(rotulo),"");
+        gera(-1, "JMPF", "L" + rotulo,"");
         rotulo++;
 
         if (token.getSimbolo().equals("sentao")) {
@@ -350,7 +353,7 @@ public class AnalisadorSintatico {
             analisaComandoSimples();
 
             auxrot2 = rotulo;
-            gera(-1, "JMP", String.valueOf(rotulo),"");
+            gera(-1, "JMP", "L" + rotulo,"");
             rotulo++;
 
             if (token.getSimbolo().equals("ssenao")){
@@ -524,7 +527,7 @@ public class AnalisadorSintatico {
         flag = 0;
         if(token.getSimbolo().equals("sprocedimento") || token.getSimbolo().equals("sfuncao")){
             auxrot = rotulo;
-            gera(-1,"JMP", String.valueOf(rotulo),"");
+            gera(-1,"JMP", "L" + rotulo,"");
             rotulo++;
             flag = 1;
 
@@ -566,6 +569,10 @@ public class AnalisadorSintatico {
                 token = lexical.analyze();
                 if (token.getSimbolo().equals("spontovirgula")) {
                     analisaBloco();
+                    int n = contaVariaveis();
+                    gera(-1,"DALLOC",String.valueOf(m-n),String.valueOf(n));
+                    m = m - n;
+                    gera(-1,"RETURN","","");
                 } else {
                     // TODO erro
                     throw new Exception("Esperava ; mas obtive " + token.getLexema());
@@ -580,6 +587,19 @@ public class AnalisadorSintatico {
         }
 
         desempilha();
+    }
+
+    private int contaVariaveis() {
+        int contador = 0;
+        for (TabelaSimbolos simbolo : tabelaSimbolos) {
+            if(simbolo.getEscopo()) {
+                break;
+            }
+            if(simbolo.getTipo() == Tipo.VARIAVEL_INTEIRA || simbolo.getTipo() == Tipo.VARIAVEL_BOOLEANA) {
+                contador++;
+            }
+        }
+        return contador;
     }
 
     private void desempilha() {
@@ -628,6 +648,10 @@ public class AnalisadorSintatico {
                         if (token.getSimbolo().equals("spontovirgula")) {
                             analisaBloco();
                             gera(-1, "STR", "0","");
+                            int n = contaVariaveis();
+                            gera(-1,"DALLOC",String.valueOf(m-n),String.valueOf(n));
+                            m = m - n;
+                            gera(-1,"RETURN","","");
                         }
                     } else {
                         // TODO erro
@@ -937,6 +961,8 @@ public class AnalisadorSintatico {
                 }
             }
         }
+
+        saida = new ArrayList<>();
     }
 
 }
