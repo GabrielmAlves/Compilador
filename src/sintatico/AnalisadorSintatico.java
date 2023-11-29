@@ -329,12 +329,25 @@ public class AnalisadorSintatico {
         desempilhaFimPos();
         geraExpressao();
 
+        int auxrot = rotulo;
+        int auxrot2 = 0;
+        gera(-1, "JMPF", String.valueOf(rotulo),"");
+        rotulo++;
+
         if (token.getSimbolo().equals("sentao")) {
             token = lexical.analyze();
             analisaComandoSimples();
+
+            auxrot2 = rotulo;
+            gera(-1, "JMP", String.valueOf(rotulo),"");
+            rotulo++;
+
             if (token.getSimbolo().equals("ssenao")){
+                gera(auxrot,"NULL","","");
                 token = lexical.analyze();
                 analisaComandoSimples();
+
+                gera(auxrot2,"NULL","","");
             }
         } else {
             //TODO erro
@@ -500,7 +513,7 @@ public class AnalisadorSintatico {
         if(token.getSimbolo().equals("sprocedimento") || token.getSimbolo().equals("sfuncao")){
             auxrot = rotulo;
             gera(-1,"JMP", String.valueOf(rotulo),"");
-            rotulo = rotulo +1;
+            rotulo++;
             flag = 1;
 
         }
