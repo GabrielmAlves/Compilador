@@ -215,7 +215,7 @@ public class AnalisadorSintatico {
             assert simbolo != null;
             gera(-1, "STR", simbolo.getEndMemoria(),"");
         } else {
-            chamadaProcedimento();
+            chamadaProcedimento(simbolo);
         }
     }
 
@@ -228,8 +228,8 @@ public class AnalisadorSintatico {
 //        saida = new ArrayList<>();
     }
 
-    private void chamadaProcedimento() {
-        // TODO não sei
+    private void chamadaProcedimento(TabelaSimbolos simbolo) {
+        gera(-1, "CALL", simbolo.getEndMemoria(),"");
     }
 
     private void analisaLeia() throws Exception {
@@ -239,6 +239,11 @@ public class AnalisadorSintatico {
             if(token.getSimbolo().equals("sidentificador")){
                 // semantico
                 if (pesquisaDeclVarTabela(token.getLexema())) {
+                    TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
+                    gera(-1,"RD","","");
+                    assert simbolo != null;
+                    gera(-1,"STR",simbolo.getEndMemoria(),"");
+
                     token = lexical.analyze();
                     if(token.getSimbolo().equals("sfechaparenteses")){
                         token = lexical.analyze();
@@ -276,6 +281,11 @@ public class AnalisadorSintatico {
             if(token.getSimbolo().equals("sidentificador")){
                 // semantico
                 if (pesquisaDeclVarTabela(token.getLexema())) {
+                    TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
+                    assert simbolo != null;
+                    gera(-1,"LDV",simbolo.getEndMemoria(),"");
+                    gera(-1,"PRN","","");
+
                     token = lexical.analyze();
                     if(token.getSimbolo().equals("sfechaparenteses")){
                         token = lexical.analyze();
@@ -298,7 +308,6 @@ public class AnalisadorSintatico {
     }
 
     private void analisaEnquanto() throws Exception {
-        //TODO geracao de código
         int auxrot1, auxrot2;
         auxrot1 = rotulo;
         gera(rotulo,"NULL","","");
@@ -313,8 +322,10 @@ public class AnalisadorSintatico {
             auxrot2 = rotulo;
             gera(-1, "JMPF", String.valueOf(rotulo),"");
             rotulo = rotulo + 1;
+
             token = lexical.analyze();
             analisaComandoSimples();
+
             gera(-1,"JMP", String.valueOf(auxrot1),"");
             gera(auxrot2,"NULL","","");
         } else {
@@ -417,7 +428,7 @@ public class AnalisadorSintatico {
             TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
             if(simbolo != null) {
                 if(simbolo.getTipo() == Tipo.FUNCAO_BOOLEANA || simbolo.getTipo() == Tipo.FUNCAO_INTEIRA) {
-                    chamadaFuncao();
+                    chamadaFuncao(simbolo);
                 } else {
                     PosFixa pos = new PosFixa(simbolo.getLexema(), simbolo.getTipo());
                     saida.add(pos);
@@ -500,9 +511,10 @@ public class AnalisadorSintatico {
         return null;
     }
 
-    private void chamadaFuncao() {
+    private void chamadaFuncao(TabelaSimbolos simbolo) {
+        gera(-1, "CALL", simbolo.getEndMemoria(),"");
+        gera(-1, "LDV", "0","");
         token = lexical.analyze();
-        // TODO não sei
     }
 
     private void analisaSubrotinas() throws Exception {
@@ -595,7 +607,7 @@ public class AnalisadorSintatico {
         if (token.getSimbolo().equals("sidentificador")) {
             // semantico
             if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
-                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.FUNCAO, true, String.valueOf(rotulo));
+                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.FUNCAO, true, "L" + rotulo);
 
                 gera(rotulo,"NULL","","");
                 rotulo = rotulo + 1;
@@ -615,6 +627,7 @@ public class AnalisadorSintatico {
                         token = lexical.analyze();
                         if (token.getSimbolo().equals("spontovirgula")) {
                             analisaBloco();
+                            gera(-1, "STR", "0","");
                         }
                     } else {
                         // TODO erro
