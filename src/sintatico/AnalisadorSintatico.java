@@ -11,7 +11,7 @@ import java.util.*;
 
 public class AnalisadorSintatico {
 
-    private static final String PATH ="D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\testes\\aa.txt";
+    private static final String PATH ="D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\testes\\gera1.txt";
     private static final String PATH_CODIGO = "D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\obj\\cod.obj";
     private final File fileCod = new File(PATH_CODIGO);
     private LexicalAnalyzer lexical;
@@ -215,7 +215,11 @@ public class AnalisadorSintatico {
             analisaExpressao();
             desempilhaFimPos();
             geraExpressao();
-            gera(-1, "STR", simbolo.getEndMemoria(),"");
+            if(simbolo.getEndMemoria().charAt(0) == 'L') {
+                gera(-1, "STR", "0","");
+            } else {
+                gera(-1, "STR", simbolo.getEndMemoria(),"");
+            }
         } else {
             chamadaProcedimento(simbolo);
         }
@@ -354,13 +358,13 @@ public class AnalisadorSintatico {
             gera(-1, "JMP", "L" + rotulo,"");
             rotulo++;
 
+            gera(auxrot,"NULL","","");
             if (token.getSimbolo().equals("ssenao")){
-                gera(auxrot,"NULL","","");
                 token = lexical.analyze();
                 analisaComandoSimples();
 
-                gera(auxrot2,"NULL","","");
             }
+            gera(auxrot2,"NULL","","");
         } else {
             //TODO erro
             throw new Exception("Esperava \"entao\" mas obtive " + token.getLexema());
@@ -645,7 +649,6 @@ public class AnalisadorSintatico {
                         token = lexical.analyze();
                         if (token.getSimbolo().equals("spontovirgula")) {
                             analisaBloco();
-                            gera(-1, "STR", "0","");
                             int n = contaVariaveis();
                             gera(-1,"DALLOC",String.valueOf(m-n),String.valueOf(n));
                             m = m - n;
