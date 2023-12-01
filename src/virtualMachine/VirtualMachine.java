@@ -6,18 +6,44 @@ import java.util.List;
 import java.util.Scanner;
 
 public class VirtualMachine {
-    private static final String PATH_CODIGO = "C:\\Users\\julia\\OneDrive\\Área de Trabalho\\PUCC\\Compiladores\\Prática\\compilador\\src\\arquivos\\obj\\cod.obj";
+    private static final String PATH_CODIGO = "D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\obj\\cod.obj";
     private final File fileCod = new File(PATH_CODIGO);
     private List<Integer> memoria = new ArrayList<>();
     private int s;
-    private String line;
+    private int i = 0;
 
-    private int i;
+    private Scanner pulaRotulo(String rotulo) {
+        try {
+            Scanner scanner = new Scanner(fileCod);
+            String line;
+            int numLinha = 0;
+            while (scanner.hasNextLine()) {
+                line = scanner.nextLine();
+                numLinha++;
+                String rot = "";
+
+                if (line.charAt(0) != '\t') {
+                    rot = line.substring(0, 2);
+                    if(rot.equals(rotulo)) {
+                        System.out.println(rotulo + " - " + numLinha);
+                        i = numLinha;
+                        return scanner;
+                    }
+                }
+            }
+
+            return null;
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
 
     public void vM (){
         try {
             Scanner scanner = new Scanner(fileCod);
-
+            String line;
             while(scanner.hasNextLine()) {
                 String rotulo = "";
                 String var1 = "";
@@ -56,11 +82,19 @@ public class VirtualMachine {
                 switch (instrucao) {
                     case "LDC":
                         s++;
-                        memoria.set(s, Integer.valueOf(var1));
+                        if(s >= memoria.size()) {
+                            memoria.add(s, Integer.valueOf(var1));
+                        } else {
+                            memoria.set(s, Integer.valueOf(var1));
+                        }
                         break;
                     case "LDV":
                         s++;
-                        memoria.set(s, memoria.get(Integer.parseInt(var1)));
+                        if(s >= memoria.size()) {
+                            memoria.add(s, memoria.get(Integer.parseInt(var1)));
+                        } else {
+                            memoria.set(s, memoria.get(Integer.parseInt(var1)));
+                        }
                         break;
                     case "ADD":
                         num1 = memoria.get(s - 1);
@@ -113,7 +147,7 @@ public class VirtualMachine {
                         memoria.set(s, 1 - memoria.get(s));
                         break;
                     case "CME":
-                        if (memoria.get(s - 1) < memoria.get(s - 1)) {
+                        if (memoria.get(s - 1) < memoria.get(s)) {
                             memoria.set(s - 1, 1);
                         } else {
                             memoria.set(s - 1, 0);
@@ -121,7 +155,7 @@ public class VirtualMachine {
                         s--;
                         break;
                     case "CMA":
-                        if (memoria.get(s - 1) > memoria.get(s - 1)) {
+                        if (memoria.get(s - 1) > memoria.get(s)) {
                             memoria.set(s - 1, 1);
                         } else {
                             memoria.set(s - 1, 0);
@@ -129,7 +163,7 @@ public class VirtualMachine {
                         s--;
                         break;
                     case "CEQ":
-                        if (memoria.get(s - 1) == memoria.get(s - 1)) {
+                        if (memoria.get(s - 1) == memoria.get(s)) {
                             memoria.set(s - 1, 1);
                         } else {
                             memoria.set(s - 1, 0);
@@ -137,7 +171,7 @@ public class VirtualMachine {
                         s--;
                         break;
                     case "CDIF":
-                        if (memoria.get(s - 1) != memoria.get(s - 1)) {
+                        if (memoria.get(s - 1) != memoria.get(s)) {
                             memoria.set(s - 1, 1);
                         } else {
                             memoria.set(s - 1, 0);
@@ -145,7 +179,7 @@ public class VirtualMachine {
                         s--;
                         break;
                     case "CMEQ":
-                        if (memoria.get(s - 1) <= memoria.get(s - 1)) {
+                        if (memoria.get(s - 1) <= memoria.get(s)) {
                             memoria.set(s - 1, 1);
                         } else {
                             memoria.set(s - 1, 0);
@@ -153,7 +187,7 @@ public class VirtualMachine {
                         s--;
                         break;
                     case "CMAQ":
-                        if (memoria.get(s - 1) >= memoria.get(s - 1)) {
+                        if (memoria.get(s - 1) >= memoria.get(s)) {
                             memoria.set(s - 1, 1);
                         } else {
                             memoria.set(s - 1, 0);
@@ -165,33 +199,40 @@ public class VirtualMachine {
                         s--;
                         break;
                     case "JMP":
-                        i = p;
+                        scanner = pulaRotulo(var1);
                         break;
                     case "JMPF":
                         if (memoria.get(s) == 0) {
-                            i = p;
-                        } else {
+                        scanner = pulaRotulo(var1);
+                        } /* else {
                             i++;
-                        }
+                        } */
                         s--;
                         break;
                     case "RD":
                         s++;
-                        memoria.set(s, Integer.parseInt(var1));
+                        if(s >= memoria.size()) {
+                            memoria.add(s, 2);
+                        } else {
+                            memoria.set(s, 2);
+                        }
                         break;
                     case "PRN":
                         System.out.println(memoria.get(s));
                         break;
                     case "START":
-                        s = -1;
+                        s = 0;
                         break;
                     case "HLT":
-                        // para exec da maquina virtual
                         break;
                     case "ALLOC":
                         for (int j = 0; j < Integer.parseInt(var2); j++) {
                             s++;
-                            memoria.set(s, memoria.get(Integer.parseInt(var1) + j));
+                            if((Integer.parseInt(var1) + j) >= memoria.size()) {
+                                memoria.add(s,0);
+                            } else {
+                                memoria.set(s, memoria.get(Integer.parseInt(var1) + j));
+                            }
                         }
                         break;
                     case "DALLOC":
@@ -202,20 +243,25 @@ public class VirtualMachine {
                         break;
                     case "CALL":
                         s++;
-                        memoria.set(s,i+1);
-                        i = p;
+                        if(s >= memoria.size()) {
+                            memoria.add(s,i+1);
+                        } else {
+                            memoria.set(s,i+1);
+                        }
+                        scanner = pulaRotulo(var1);
                         break;
                     case "RETURN":
                         i = memoria.get(s);
                         s--;
                         break;
+                    case "NULL":
+                        break;
                     default:
                         System.out.println("Instrução não encontrada");
                 }
-
             }
 
-        }catch (Exception e ){
+        } catch (Exception e){
             System.out.println(e.getMessage());
         }
     }
