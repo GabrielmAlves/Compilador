@@ -40,16 +40,31 @@ public class VirtualMachine {
         }
     }
 
+    private Scanner voltaLinha() {
+        try {
+            Scanner scanner = new Scanner(fileCod);
+            for (int k=1; k<i; k++) {
+                scanner.nextLine();
+            }
+            return scanner;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
     public void vM (){
         try {
             Scanner scanner = new Scanner(fileCod);
             String line;
+            memoria.add(0,0);
             while(scanner.hasNextLine()) {
+                line = scanner.nextLine();
+                i++;
                 String rotulo = "";
                 String var1 = "";
                 String var2 = "";
                 String instrucao = "";
-                line = scanner.nextLine();
                 int k=0;
                 if(line.charAt(0) != '\t') {
                     rotulo = line.substring(0,2);
@@ -97,10 +112,10 @@ public class VirtualMachine {
                         }
                         break;
                     case "ADD":
-                        num1 = memoria.get(s - 1);
+                        num1 = memoria.get(s-1);
                         num2 = memoria.get(s);
                         result = num1 + num2;
-                        memoria.set(s - 1, result);
+                        memoria.set(s-1, result);
                         s--;
                         break;
                     case "SUB":
@@ -224,14 +239,19 @@ public class VirtualMachine {
                         s = 0;
                         break;
                     case "HLT":
-                        break;
+                        System.out.println("Fim da execução");
+                        return;
                     case "ALLOC":
                         for (int j = 0; j < Integer.parseInt(var2); j++) {
                             s++;
-                            if((Integer.parseInt(var1) + j) >= memoria.size()) {
-                                memoria.add(s,0);
+                            if(s >= memoria.size()) {
+                                if(Integer.parseInt(var1) + j >= memoria.size()) {
+                                    memoria.add(s,0);
+                                } else {
+                                    memoria.add(s,memoria.get(Integer.parseInt(var1) + j));
+                                }
                             } else {
-                                memoria.set(s, memoria.get(Integer.parseInt(var1) + j));
+                                memoria.set(s,memoria.get(Integer.parseInt(var1) + j));
                             }
                         }
                         break;
@@ -252,6 +272,7 @@ public class VirtualMachine {
                         break;
                     case "RETURN":
                         i = memoria.get(s);
+                        scanner = voltaLinha();
                         s--;
                         break;
                     case "NULL":
