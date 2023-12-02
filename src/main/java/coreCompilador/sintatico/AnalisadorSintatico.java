@@ -1,7 +1,8 @@
-package sintatico;
+package coreCompilador.sintatico;
 
-import lexical.LexicalAnalyzer;
-import lexical.Token;
+
+import coreCompilador.lexical.LexicalAnalyzer;
+import coreCompilador.lexical.Token;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,22 +10,28 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+
 public class AnalisadorSintatico {
 
-    private static final String PATH ="D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\testes\\gera1.txt";
-    private static final String PATH_CODIGO = "D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\obj\\cod.obj";
+    private final String path;
+    private static final String PATH_CODIGO = System.getProperty("user.dir") + "\\src\\main\\java\\coreCompilador\\arquivos\\obj\\cod.obj";
     private final File fileCod = new File(PATH_CODIGO);
     private LexicalAnalyzer lexical;
     private Token token;
     private Deque<TabelaSimbolos> tabelaSimbolos = new ArrayDeque<>();
     private Deque<PosFixa> pilhaPos = new ArrayDeque<>();
     private List<PosFixa> saida = new ArrayList<>();
+    private List<PosFixa> copiaSaida = new ArrayList<>();
     private int rotulo;
     private int m = 1;
 
+    public AnalisadorSintatico(String PATH) {
+        this.path = PATH;
+    }
+
     public void analisa() throws Exception {
 
-        File file = new File(PATH);
+        File file = new File(path);
         lexical = new LexicalAnalyzer(file);
         rotulo = 1;
         token = lexical.analyze();
@@ -40,35 +47,28 @@ public class AnalisadorSintatico {
                 token = lexical.analyze();
                 if(token.getSimbolo().equals("spontovirgula")){
                     analisaBloco();
-                    if(token.getSimbolo().equals("sponto")){
+                    if(token.getSimbolo().equals("sponto")) {
                         token = lexical.analyze();
                         if(token == null) {
-                            // TODO sucesso
                             int n = contaVariaveis();
                             gera(-1,"DALLOC",String.valueOf(m-n),String.valueOf(n));
                             m = m - n;
                             gera(-1,"HLT","","");
-                            System.out.println("Sucesso!");
                         } else {
-                            // TODO erro
                             throw new Exception("Arquivo terminou de forma incorreta");
                         }
 
                     } else {
-                        // TODO erro
                         throw new Exception("Experava . mas obtive " + token.getLexema());
                     }
                 } else {
-                    // TODO erro
                     throw new Exception("Experava ; mas obtive " + token.getLexema());
                 }
 
             } else {
-                // TODO erro
                 throw new Exception("Programa sem nome");
             }
         } else {
-            // TODO erro
             throw new Exception("Programa não iniciado");
         }
     }
@@ -89,12 +89,10 @@ public class AnalisadorSintatico {
                     if (token.getSimbolo().equals("spontovirgula")) {
                         token = lexical.analyze();
                     } else {
-                        //TODO erro
                         throw new Exception("Esperava ; mas obtive " + token.getLexema());
                     }
                 }
             } else {
-                //TODO erro
                 throw new Exception("Variavel sem nome");
             }
         }
@@ -116,21 +114,16 @@ public class AnalisadorSintatico {
                         if (token.getSimbolo().equals("svirgula")) {
                             token = lexical.analyze();
                             if (token.getSimbolo().equals("sdoispontos")) {
-                                //TODO erro
-                                System.out.println("Erro 8");
-                                return;
+                                throw new Exception("Esperava uma variavel mas obtive " + token.getLexema());
                             }
                         }
                     } else {
-                        //TODO erro
                         throw new Exception("Esperava , ou : mas obtive " + token.getLexema());
                     }
                 } else {
-                    //TODO erro
                     throw new Exception("Variavel duplicada");
                 }
             } else {
-                //TODO erro
                 throw new Exception("Variavel sem nome");
             }
         } while (!token.getSimbolo().equals("sdoispontos"));
@@ -154,7 +147,6 @@ public class AnalisadorSintatico {
 
     private void analisaTipo() throws Exception {
         if (!token.getSimbolo().equals("sinteiro") && !token.getSimbolo().equals("sbooleano")) {
-            //TODO erro
             throw new Exception("Tipo " + token.getLexema() + " não permitido");
         }
         colocaTipoTabela(token.getLexema());
@@ -184,13 +176,11 @@ public class AnalisadorSintatico {
                         analisaComandoSimples();
                     }
                 } else {
-                    //TODO erro
                     throw new Exception("Esperava ; mas obtive " + token.getLexema());
                 }
             }
             token = lexical.analyze();
         } else {
-            //TODO erro
             throw new Exception("Bloco de comandos não iniciado");
         }
     }
@@ -227,10 +217,8 @@ public class AnalisadorSintatico {
 
     private void desempilhaFimPos() {
         desempilhaPos();
-        for (PosFixa p : saida) {
-            System.out.print(p.getLexema() + ' ');
-        }
-        // analisaTipoExpressao();
+        copiaSaida = saida;
+        analisaTipoExpressao();
     }
 
     private void chamadaProcedimento(TabelaSimbolos simbolo) {
@@ -253,19 +241,15 @@ public class AnalisadorSintatico {
                     if(token.getSimbolo().equals("sfechaparenteses")){
                         token = lexical.analyze();
                     } else {
-                        //TODO erro
                         throw new Exception("Esperava ) mas obtive " + token.getLexema());
                     }
                 } else {
-                    //TODO erro
                     throw new Exception("Variavel " + token.getLexema() + "  declarada");
                 }
             } else {
-                //TODO erro
                 throw new Exception("Variavel " + token.getLexema() + "  não declarada");
             }
         } else {
-            //TODO erro
             throw new Exception("Esperava ( mas obtive " + token.getLexema());
         }
     }
@@ -295,19 +279,15 @@ public class AnalisadorSintatico {
                     if(token.getSimbolo().equals("sfechaparenteses")){
                         token = lexical.analyze();
                     } else {
-                        //TODO erro
                         throw new Exception("Esperava ) mas obtive " + token.getLexema());
                     }
                 } else {
-                    //TODO erro
                     throw new Exception("Variavel " + token.getLexema() +  " não declarada");
                 }
             } else {
-                //TODO erro
                 throw new Exception("Variavel " + token.getLexema() +  " não declarada");
             }
         } else {
-            //TODO erro
             throw new Exception("Esperava ( mas obtive " + token.getLexema());
         }
     }
@@ -334,7 +314,6 @@ public class AnalisadorSintatico {
             gera(-1,"JMP", "L" + auxrot1,"");
             gera(auxrot2,"NULL","","");
         } else {
-            //TODO erro
             throw new Exception("Loop não iniciado");
         }
     }
@@ -366,7 +345,6 @@ public class AnalisadorSintatico {
             }
             gera(auxrot2,"NULL","","");
         } else {
-            //TODO erro
             throw new Exception("Esperava \"entao\" mas obtive " + token.getLexema());
         }
     }
@@ -440,7 +418,6 @@ public class AnalisadorSintatico {
                     token = lexical.analyze();
                 }
             } else {
-                // TODO erro
                 throw new Exception("Variavel " + token.getLexema() + " nao declarada");
             }
         } else if (token.getSimbolo().equals("snumero")) {
@@ -461,13 +438,11 @@ public class AnalisadorSintatico {
                 desempilhaAteParenteses();
                 token = lexical.analyze();
             } else {
-                // TODO erro
                 throw new Exception("Esperava ) mas obtive " + token.getLexema());
             }
         } else if (token.getLexema().equals("verdadeiro") || token.getLexema().equals("falso")) {
             token = lexical.analyze();
         } else {
-            // TODO erro
             throw new Exception("Fator não identificado");
         }
     }
@@ -516,7 +491,7 @@ public class AnalisadorSintatico {
         return null;
     }
 
-    private void chamadaFuncao(TabelaSimbolos simbolo) {
+    private void chamadaFuncao(TabelaSimbolos simbolo) throws Exception {
         gera(-1, "CALL", simbolo.getEndMemoria(),"");
         gera(-1, "LDV", "0","");
         token = lexical.analyze();
@@ -544,7 +519,6 @@ public class AnalisadorSintatico {
             if (token.getSimbolo().equals("spontovirgula")) {
                 token = lexical.analyze();
             } else {
-                // TODO erro
                 throw new Exception("Esperava ; mas obtive " + token.getLexema());
             }
         }
@@ -566,8 +540,6 @@ public class AnalisadorSintatico {
                 gera(rotulo,"NULL","","");
                 rotulo = rotulo + 1;
 
-                // TODO geracao de código
-
                 token = lexical.analyze();
                 if (token.getSimbolo().equals("spontovirgula")) {
                     analisaBloco();
@@ -576,15 +548,12 @@ public class AnalisadorSintatico {
                     m = m - n;
                     gera(-1,"RETURN","","");
                 } else {
-                    // TODO erro
                     throw new Exception("Esperava ; mas obtive " + token.getLexema());
                 }
             } else {
-                // TODO erro
                 throw new Exception("Variavel " + token.getLexema() + " nao declarada");
             }
         } else {
-            // TODO erro
             throw new Exception("Variavel " + token.getLexema() + " nao declarada");
         }
 
@@ -655,19 +624,15 @@ public class AnalisadorSintatico {
                             gera(-1,"RETURN","","");
                         }
                     } else {
-                        // TODO erro
                         throw new Exception("Tipo " + token.getLexema() + " nao permitido");
                     }
                 } else {
-                    // TODO erro
                     throw new Exception("Esperava : mas obtive " + token.getLexema());
                 }
             } else {
-                // TODO erro
                 throw new Exception("Variavel " + token.getLexema() + " nao declarada");
             }
         } else {
-            // TODO erro
             throw new Exception("Variavel " + token.getLexema() + " nao declarada");
         }
 
@@ -676,30 +641,30 @@ public class AnalisadorSintatico {
 
     private boolean analisaTipoExpressao() {
         PosFixa n1,n2;
-        while (saida.toArray().length>1) {
-            for (int i=0; i<saida.toArray().length; i++) {
-                if (saida.get(i).getTipo() == Tipo.ARITMETICO || saida.get(i).getTipo() == Tipo.RELACIONAL) {
-                    n1 = saida.get(i-2);
-                    n2 = saida.get(i-1);
+        while (copiaSaida.size()>1) {
+            for (int i=0; i<copiaSaida.size(); i++) {
+                if (copiaSaida.get(i).getTipo() == Tipo.ARITMETICO || copiaSaida.get(i).getTipo() == Tipo.RELACIONAL) {
+                    n1 = copiaSaida.get(i-2);
+                    n2 = copiaSaida.get(i-1);
                     if(n1.getTipo() != Tipo.VARIAVEL_INTEIRA && n2.getTipo() != Tipo.VARIAVEL_INTEIRA) {
                         return false;
                     }
-                    if (saida.get(i).getTipo() == Tipo.ARITMETICO) {
+                    if (copiaSaida.get(i).getTipo() == Tipo.ARITMETICO) {
                         alteraSaida(i,Tipo.ARITMETICO);
                     } else {
                         alteraSaida(i,Tipo.RELACIONAL);
                     }
                     break;
-                } else if (saida.get(i).getTipo() == Tipo.LOGICO) {
-                    n1 = saida.get(i-2);
-                    n2 = saida.get(i-1);
+                } else if (copiaSaida.get(i).getTipo() == Tipo.LOGICO) {
+                    n1 = copiaSaida.get(i-2);
+                    n2 = copiaSaida.get(i-1);
                     if (n1.getTipo() != Tipo.VARIAVEL_BOOLEANA && n2.getTipo() != Tipo.VARIAVEL_BOOLEANA) {
                         return false;
                     }
                     alteraSaida(i,Tipo.LOGICO);
                     break;
-                } else if (saida.get(i).getTipo() == Tipo.UNARIO) {
-                    n1 = saida.get(i-1);
+                } else if (copiaSaida.get(i).getTipo() == Tipo.UNARIO) {
+                    n1 = copiaSaida.get(i-1);
                     if (n1.getTipo() != Tipo.VARIAVEL_INTEIRA) {
                         return false;
                     }
@@ -707,17 +672,13 @@ public class AnalisadorSintatico {
                     break;
                 }
             }
-            System.out.println();
-            for(PosFixa p : saida) {
-                System.out.print(p.getLexema() + " ");
-            }
         }
         return true;
     }
 
     private void alteraSaida(int y, Tipo tipo) {
         List<PosFixa> auxSaida = new ArrayList<>();
-        for (int i=0 ; i<saida.toArray().length; i++) {
+        for (int i=0 ; i<copiaSaida.size(); i++) {
             if(tipo == Tipo.UNARIO) {
                 if (i == y - 1) {
                     PosFixa p = new PosFixa("I", Tipo.VARIAVEL_INTEIRA);
@@ -735,11 +696,11 @@ public class AnalisadorSintatico {
                 i = y+1;
             }
 
-            if(i<saida.toArray().length) {
-                auxSaida.add(saida.get(i));
+            if(i<copiaSaida.size()) {
+                auxSaida.add(copiaSaida.get(i));
             }
         }
-        saida = auxSaida;
+        copiaSaida = auxSaida;
     }
 
     private void gera(int r, String instrucao, String var1, String var2) {

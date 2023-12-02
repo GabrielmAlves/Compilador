@@ -1,4 +1,4 @@
-package sintatico;
+package coreCompilador.sintatico;
 
 public enum Tipo {
     VARIAVEL,

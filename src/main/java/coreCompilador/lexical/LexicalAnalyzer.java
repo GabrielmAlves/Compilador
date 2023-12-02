@@ -1,4 +1,4 @@
-package lexical;
+package coreCompilador.lexical;
 
 import java.io.File;
 import java.util.*;
@@ -25,21 +25,15 @@ public class LexicalAnalyzer {
 		}
 	}
 
-	public Token analyze() {
-
-		try {
-			while (character.equals('{') || character.equals(' ') || character.equals('\t')) {
-				if (character.equals('{')) {
-					trataComentario(i);
-				}
-				character = pegaCaracter();
+	public Token analyze() throws Exception {
+		while (character.equals('{') || character.equals(' ') || character.equals('\t')) {
+			if (character.equals('{')) {
+				trataComentario(i);
 			}
-			pegaToken();
-			return tokinho;
-        } catch (Exception e) {
-			System.out.println(e.getMessage());
-			return null;
-        }
+			character = pegaCaracter();
+		}
+		pegaToken();
+		return tokinho;
 	}
 
 	private void trataComentario(int i) throws Exception {
@@ -81,7 +75,6 @@ public class LexicalAnalyzer {
 			trataPontuacao();
 
 		} else {
-			// TODO erro
 			throw new Exception(String.format("Caracter %c inválido",character));
 		}
 	}
@@ -99,7 +92,6 @@ public class LexicalAnalyzer {
 		}
 
 		tokinho = new Token("snumero", numero);
-//		this.tokens.add(token);
 	}
 
 	private void trataLetra() throws Exception {
@@ -189,11 +181,9 @@ public class LexicalAnalyzer {
 
 		if(character.equals('=')) {
 			tokinho = new Token("satribuicao",":=");
-//			tokens.add(token);
 			character = pegaCaracter();
 		} else {
 			tokinho = new Token("sdoispontos",":");
-//			tokens.add(token);
 		}
 	}
 
@@ -211,7 +201,6 @@ public class LexicalAnalyzer {
 				tokinho.setSimbolo("smult");
 			}
 		}
-//		tokens.add(token);
 		character = pegaCaracter();
 	}
 
@@ -224,7 +213,6 @@ public class LexicalAnalyzer {
 				tokinho.setSimbolo("sdif");
 				character = pegaCaracter();
 			} else {
-				// TODO erro
 				throw new Exception(String.format("Caracter ! inválido"));
 			}
 		} else if (character.equals('<')) {
@@ -252,7 +240,6 @@ public class LexicalAnalyzer {
 			tokinho.setSimbolo("sig");
 			character = pegaCaracter();
 		}
-//		tokens.add(token);
 	}
 
 	private void trataPontuacao() throws Exception {
@@ -294,7 +281,7 @@ public class LexicalAnalyzer {
 		line = scanner.nextLine();
 		while (line.isBlank()) {
 			if (!scanner.hasNextLine()) {
-				System.out.println("Fim de arquivo");
+				System.out.println("Fim de arquivo - linha");
 				return false;
 			}
 			line = scanner.nextLine();
@@ -307,7 +294,7 @@ public class LexicalAnalyzer {
 		if ((i + 1) >= line.length()) {
 			i=0;
 			if (!scanner.hasNextLine()) {
-				System.out.println("Fim de arquivo");
+				System.out.println("Fim de arquivo - character");
 				return null;
 			}
 			if (!pegaLinha()) {

@@ -1,4 +1,4 @@
-package lexical;
+package coreCompilador.lexical;
 
 public class Token {
 	private String lexema;

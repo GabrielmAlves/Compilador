@@ -1,4 +1,4 @@
-package virtualMachine;
+package coreCompilador.virtualMachine;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,15 +6,15 @@ import java.util.List;
 import java.util.Scanner;
 
 public class VirtualMachine {
-    private static final String PATH_CODIGO = "D:\\Pucc\\Compiladores\\Compilador\\src\\arquivos\\obj\\cod.obj";
-    private final File fileCod = new File(PATH_CODIGO);
+    private static final String PATH = System.getProperty("user.dir") + "\\src\\main\\java\\coreCompilador\\arquivos\\obj\\cod.obj";
+    private final File file = new File(PATH);
     private List<Integer> memoria = new ArrayList<>();
     private int s;
     private int i = 0;
 
     private Scanner pulaRotulo(String rotulo) {
         try {
-            Scanner scanner = new Scanner(fileCod);
+            Scanner scanner = new Scanner(file);
             String line;
             int numLinha = 0;
             while (scanner.hasNextLine()) {
@@ -42,7 +42,7 @@ public class VirtualMachine {
 
     private Scanner voltaLinha() {
         try {
-            Scanner scanner = new Scanner(fileCod);
+            Scanner scanner = new Scanner(file);
             for (int k=1; k<i; k++) {
                 scanner.nextLine();
             }
@@ -55,7 +55,7 @@ public class VirtualMachine {
 
     public void vM (){
         try {
-            Scanner scanner = new Scanner(fileCod);
+            Scanner scanner = new Scanner(file);
             String line;
             memoria.add(0,0);
             while(scanner.hasNextLine()) {
