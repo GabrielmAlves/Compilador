@@ -31,6 +31,9 @@ public class LexicalAnalyzer {
 				trataComentario(i);
 			}
 			character = pegaCaracter();
+			if(character == null) {
+				break;
+			}
 		}
 		pegaToken();
 		return tokinho;
@@ -281,7 +284,6 @@ public class LexicalAnalyzer {
 		line = scanner.nextLine();
 		while (line.isBlank()) {
 			if (!scanner.hasNextLine()) {
-				System.out.println("Fim de arquivo - linha");
 				return false;
 			}
 			line = scanner.nextLine();
@@ -294,7 +296,6 @@ public class LexicalAnalyzer {
 		if ((i + 1) >= line.length()) {
 			i=0;
 			if (!scanner.hasNextLine()) {
-				System.out.println("Fim de arquivo - character");
 				return null;
 			}
 			if (!pegaLinha()) {

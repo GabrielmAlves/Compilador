@@ -25,7 +25,6 @@ public class VirtualMachine {
                 if (line.charAt(0) != '\t') {
                     rot = line.substring(0, 2);
                     if(rot.equals(rotulo)) {
-                        System.out.println(rotulo + " - " + numLinha);
                         i = numLinha;
                         return scanner;
                     }

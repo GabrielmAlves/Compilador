@@ -730,7 +730,6 @@ public class AnalisadorSintatico {
     }
 
     private void geraExpressao() {
-        System.out.println(saida);
 
         for(PosFixa s : saida) {
             if (s.getTipo() == Tipo.VARIAVEL_BOOLEANA || s.getTipo() == Tipo.VARIAVEL_INTEIRA) {
