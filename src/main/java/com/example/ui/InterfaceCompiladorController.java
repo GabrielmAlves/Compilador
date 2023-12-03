@@ -8,8 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.stage.FileChooser;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.Scanner;
 
 public class InterfaceCompiladorController {
@@ -71,6 +70,27 @@ public class InterfaceCompiladorController {
 
         }catch (Exception e) {
             textErrors.setText(e.getMessage());
+        }
+   }
+
+   @FXML
+    protected void salvar() {
+
+
+        try {
+            FileWriter fileWriter = new FileWriter(compilaFile);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+            bufferedWriter.write(fileArea.getText());
+            bufferedWriter.close();
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Arquivo salvo!");
+            alert.setHeaderText(null); // Não exibirá o cabeçalho
+            alert.setContentText("Arquivo alterado!");
+            alert.show();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
    }
 }
