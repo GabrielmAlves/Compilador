@@ -31,6 +31,10 @@ public class AnalisadorSintatico {
 
     public void analisa() throws Exception {
 
+        FileWriter fileWriter = new FileWriter(fileCod);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        bufferedWriter.write("");
+
         File file = new File(path);
         lexical = new LexicalAnalyzer(file);
         rotulo = 1;

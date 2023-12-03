@@ -64,7 +64,7 @@ public class InterfaceCompiladorController {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Alerta");
             alert.setHeaderText(null); // Não exibirá o cabeçalho
-            alert.setContentText("Sucesso!");
+            alert.setContentText("Compilado com sucesso!");
 
             // Mostra o alerta quando o botão é clicado
             alert.show();
