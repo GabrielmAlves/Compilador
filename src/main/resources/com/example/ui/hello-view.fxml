@@ -37,16 +37,16 @@
             <Insets top="15.0" />
          </GridPane.margin>
       </TextArea>
-      <Label minWidth="-Infinity" prefHeight="17.0" prefWidth="66.0" text="Ln 1 - Col 1" GridPane.rowIndex="5" GridPane.valignment="TOP">
+      <Label minWidth="-Infinity" prefHeight="17.0" prefWidth="66.0" text="Ln 1 - Col 1" GridPane.rowIndex="5" GridPane.valignment="TOP" textFill="aliceblue">
          <GridPane.margin>
             <Insets top="15.0" />
          </GridPane.margin>
       </Label>
-      <Label text="Erros:" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
-      <TextArea fx:id="textErrors" disable="true" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6" />
+      <Label text="Erros:" GridPane.rowIndex="5" GridPane.valignment="BOTTOM"  textFill="aliceblue" />
+      <TextArea fx:id="textErrors" disable="true" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6"/>
       <Button mnemonicParsing="false" onAction="#compilar" text="Compilar" GridPane.columnIndex="4" GridPane.halignment="RIGHT" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
-      <Button mnemonicParsing="false" onAction="#editar" text="Editar" GridPane.columnIndex="4" GridPane.halignment="RIGHT" GridPane.valignment="BOTTOM" />
-      <Label fx:id="textFiledPath" prefHeight="17.0" prefWidth="344.0" GridPane.columnSpan="4" GridPane.valignment="BOTTOM">
+      <Button mnemonicParsing="false" onAction="#editar" text="Editar" GridPane.columnIndex="4" GridPane.halignment="RIGHT" GridPane.valignment="BOTTOM"/>
+      <Label fx:id="textFiledPath" prefHeight="17.0" prefWidth="344.0" GridPane.columnSpan="4" GridPane.valignment="BOTTOM" textFill="aliceblue" >
          <GridPane.margin>
             <Insets left="80.0" />
          </GridPane.margin></Label>
