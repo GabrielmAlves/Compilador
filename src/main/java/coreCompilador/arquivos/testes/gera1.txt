@@ -22,7 +22,7 @@ var a,b,s: inteiro;
   inicio
      leia (c);
      leia (a);
-     s:= soma;                  
+     s:= soma;
      escreva (s);
   fim;
   procedimento loop;         

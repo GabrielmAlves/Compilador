@@ -1,16 +1,24 @@
-programa exemplo6;
-    var x, y: inteiro;
-    procedimento p;
-        var z: inteiro;
-        inicio
-            z:= x; x:=x-1;
-            se z>1 entao p
-            senao y:=1;
-             y:=y*z
-        fim { p };
-    inicio
-        leia(x);
-        p;
-        escreva (y);
-        escreva (x)
-    fim.
+programa test;
+var a,b,c: inteiro;
+funcao soma: inteiro;
+var c,a: inteiro;
+funcao ler: inteiro;
+inicio
+   leia (c);
+   a:= 10*c;
+   ler:=a;
+fim;
+ procedimento loop;
+ var x: inteiro;
+ inicio
+   leia (x);
+   se (x < 10) e ((c*10+5)>30)
+   entao x:=ler;
+ fim;
+inicio
+ loop;
+ soma:= c+a;
+fim;
+inicio
+ escreva(soma);
+fim.

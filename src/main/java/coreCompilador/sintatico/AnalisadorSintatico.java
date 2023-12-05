@@ -209,8 +209,18 @@ public class AnalisadorSintatico {
             analisaExpressao();
             desempilhaFimPos();
 
-            if(!copiaSaida.get(0).getLexema().equals("I")) {
-                throw new Exception("Esperava uma expressão que retornasse inteiro");
+            if(!copiaSaida.isEmpty()) {
+                if (simbolo.getTipo() == Tipo.FUNCAO_INTEIRA) {
+                    if(copiaSaida.get(0).getTipo() != Tipo.VARIAVEL_INTEIRA) {
+                        throw new Exception("Esperava uma expressão que retornasse inteiro");
+                    }
+                } else if (simbolo.getTipo() == Tipo.FUNCAO_BOOLEANA) {
+                    if(copiaSaida.get(0).getTipo() != Tipo.VARIAVEL_BOOLEANA) {
+                        throw new Exception("Esperava uma expressão que retornasse booleano");
+                    }
+                } else if(simbolo.getTipo() != copiaSaida.get(0).getTipo()) {
+                    throw new Exception("Esperava uma expressão que retornasse " + simbolo.getTipo());
+                }
             }
 
             geraExpressao();
@@ -281,7 +291,12 @@ public class AnalisadorSintatico {
                 if (pesquisaDeclVarTabela(token.getLexema())) {
                     TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
                     assert simbolo != null;
-                    gera(-1,"LDV",simbolo.getEndMemoria(),"");
+                    if (simbolo.getEndMemoria().charAt(0) == 'L') {
+                        gera(-1,"CALL",simbolo.getEndMemoria(),"");
+                        gera(-1,"LDV","0","");
+                    } else {
+                        gera(-1,"LDV",simbolo.getEndMemoria(),"");
+                    }
                     gera(-1,"PRN","","");
 
                     token = lexical.analyze();
@@ -311,8 +326,10 @@ public class AnalisadorSintatico {
         analisaExpressao();
         desempilhaFimPos();
 
-        if(!copiaSaida.get(0).getLexema().equals("B")) {
-            throw new Exception("Esperava uma expressão que retornasse booleano");
+        if(!copiaSaida.isEmpty()) {
+            if(!copiaSaida.get(0).getLexema().equals("B")) {
+                throw new Exception("Esperava uma expressão que retornasse booleano");
+            }
         }
 
         geraExpressao();
@@ -337,8 +354,10 @@ public class AnalisadorSintatico {
         analisaExpressao();
         desempilhaFimPos();
 
-        if(!copiaSaida.get(0).getLexema().equals("B")) {
-            throw new Exception("Esperava uma expressão que retornasse booleano");
+        if(!copiaSaida.isEmpty()) {
+            if(!copiaSaida.get(0).getLexema().equals("B")) {
+                throw new Exception("Esperava uma expressão que retornasse booleano");
+            }
         }
 
         geraExpressao();
@@ -430,7 +449,9 @@ public class AnalisadorSintatico {
             TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
             if(simbolo != null) {
                 if(simbolo.getTipo() == Tipo.FUNCAO_BOOLEANA || simbolo.getTipo() == Tipo.FUNCAO_INTEIRA) {
-                    chamadaFuncao(simbolo);
+                    PosFixa pos = new PosFixa(simbolo.getLexema(), simbolo.getTipo());
+                    saida.add(pos);
+                    token = lexical.analyze();
                 } else {
                     PosFixa pos = new PosFixa(simbolo.getLexema(), simbolo.getTipo());
                     saida.add(pos);
@@ -462,7 +483,7 @@ public class AnalisadorSintatico {
         } else if (token.getLexema().equals("verdadeiro") || token.getLexema().equals("falso")) {
             token = lexical.analyze();
         } else {
-            throw new Exception("Fator não identificado");
+            throw new Exception("Fator " + token.getLexema() + " não identificado");
         }
     }
 
@@ -508,12 +529,6 @@ public class AnalisadorSintatico {
             }
         }
         return null;
-    }
-
-    private void chamadaFuncao(TabelaSimbolos simbolo) throws Exception {
-        gera(-1, "CALL", simbolo.getEndMemoria(),"");
-        gera(-1, "LDV", "0","");
-        token = lexical.analyze();
     }
 
     private void analisaSubrotinas() throws Exception {
@@ -660,14 +675,27 @@ public class AnalisadorSintatico {
 
     private void analisaTipoExpressao() throws Exception {
         PosFixa n1,n2;
+
+        if(copiaSaida.size() == 1) {
+            if(copiaSaida.get(0).getTipo() == Tipo.FUNCAO_INTEIRA || copiaSaida.get(0).getTipo() == Tipo.VARIAVEL_INTEIRA) {
+                copiaSaida = new ArrayList<>();
+                copiaSaida.add(new PosFixa("I",Tipo.VARIAVEL_INTEIRA));
+            } else if(copiaSaida.get(0).getTipo() == Tipo.FUNCAO_BOOLEANA || copiaSaida.get(0).getTipo() == Tipo.VARIAVEL_BOOLEANA) {
+                copiaSaida = new ArrayList<>();
+                copiaSaida.add(new PosFixa("B",Tipo.VARIAVEL_BOOLEANA));
+            }
+        }
+
         while (copiaSaida.size()>1) {
             for (int i=0; i<copiaSaida.size(); i++) {
                 if (copiaSaida.get(i).getTipo() == Tipo.ARITMETICO || copiaSaida.get(i).getTipo() == Tipo.RELACIONAL) {
                     n1 = copiaSaida.get(i-2);
                     n2 = copiaSaida.get(i-1);
-                    if(n1.getTipo() != Tipo.VARIAVEL_INTEIRA && n2.getTipo() != Tipo.VARIAVEL_INTEIRA) {
-                        throw new Exception("Não foi possivel validar a expressão pois " + copiaSaida.get(i).getLexema()
-                                + " espera que " + n1.getLexema() + " e " + n2.getLexema() + " sejam variaveis inteira");
+                    if (n1.getTipo() != Tipo.FUNCAO_INTEIRA && n1.getTipo() != Tipo.VARIAVEL_INTEIRA) {
+                        if (n2.getTipo() != Tipo.FUNCAO_INTEIRA && n2.getTipo() != Tipo.VARIAVEL_INTEIRA) {
+                            throw new Exception("Não foi possivel validar a expressão pois " + copiaSaida.get(i).getLexema()
+                                    + " espera que " + n1.getLexema() + " e " + n2.getLexema() + " sejam variaveis inteira");
+                        }
                     }
                     if (copiaSaida.get(i).getTipo() == Tipo.ARITMETICO) {
                         alteraSaida(i,Tipo.ARITMETICO);
@@ -678,9 +706,11 @@ public class AnalisadorSintatico {
                 } else if (copiaSaida.get(i).getTipo() == Tipo.LOGICO) {
                     n1 = copiaSaida.get(i-2);
                     n2 = copiaSaida.get(i-1);
-                    if (n1.getTipo() != Tipo.VARIAVEL_BOOLEANA && n2.getTipo() != Tipo.VARIAVEL_BOOLEANA) {
-                        throw new Exception("Não foi possivel validar a expressão pois " + copiaSaida.get(i).getLexema()
-                                + " espera que " + n1.getLexema() + " e " + n2.getLexema() + " sejam variaveis booleanas");
+                    if (n1.getTipo() != Tipo.FUNCAO_BOOLEANA && n1.getTipo() != Tipo.VARIAVEL_BOOLEANA) {
+                        if (n2.getTipo() != Tipo.FUNCAO_BOOLEANA && n2.getTipo() != Tipo.VARIAVEL_BOOLEANA) {
+                            throw new Exception("Não foi possivel validar a expressão pois " + copiaSaida.get(i).getLexema()
+                                    + " espera que " + n1.getLexema() + " e " + n2.getLexema() + " sejam variaveis booleanas");
+                        }
                     }
                     alteraSaida(i,Tipo.LOGICO);
                     break;
@@ -750,13 +780,13 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void geraExpressao() {
+    private void geraExpressao() throws Exception {
 
         for(PosFixa s : saida) {
             if (s.getTipo() == Tipo.VARIAVEL_BOOLEANA || s.getTipo() == Tipo.VARIAVEL_INTEIRA) {
                 TabelaSimbolos simbolo = pesquisaTabela(s.getLexema());
                 assert simbolo != null;
-                gera(-1, "LDV",simbolo.getEndMemoria(),"");
+                gera(-1,"LDV",simbolo.getEndMemoria(),"");
             } else if (s.getTipo() == Tipo.CONSTANTE) {
                 gera(-1, "LDC",s.getLexema(),"");
             } else if (s.getTipo() == Tipo.ARITMETICO) {
@@ -781,6 +811,11 @@ public class AnalisadorSintatico {
                     case "ou" -> gera(-1, "OR", "", "");
                     case "nao" -> gera(-1, "NEG", "", "");
                 }
+            } else if (s.getTipo() == Tipo.FUNCAO_BOOLEANA || s.getTipo() == Tipo.FUNCAO_INTEIRA) {
+                TabelaSimbolos simbolo = pesquisaTabela(s.getLexema());
+                assert simbolo != null;
+                gera(-1, "CALL", simbolo.getEndMemoria(),"");
+                gera(-1, "LDV", "0","");;
             }
         }
 
