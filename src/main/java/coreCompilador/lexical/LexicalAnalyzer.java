@@ -26,6 +26,10 @@ public class LexicalAnalyzer {
 	}
 
 	public Token analyze() throws Exception {
+		if (character == null) {
+			return null;
+		}
+
 		while (character.equals('{') || character.equals(' ') || character.equals('\t')) {
 			if (character.equals('{')) {
 				trataComentario(i);
@@ -99,13 +103,17 @@ public class LexicalAnalyzer {
 
 	private void trataLetra() throws Exception {
 		String id = String.valueOf(character);
-		character = pegaCaracter();
-		while (Character.isLetter(character) || Character.isDigit(character) || character.equals('_')) {
-			id = id + character;
-			if((i+1) >= line.length()) {
-				character = pegaCaracter();
-				break;
+		if((i+1) < line.length()) {
+			character = pegaCaracter();
+			while (Character.isLetter(character) || Character.isDigit(character) || character.equals('_')) {
+            			id = id + character;
+            			if((i+1) >= line.length()) {
+            				character = pegaCaracter();
+            				break;
+            			}
+            			character = pegaCaracter();
 			}
+		} else {
 			character = pegaCaracter();
 		}
 

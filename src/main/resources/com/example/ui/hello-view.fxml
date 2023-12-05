@@ -38,7 +38,7 @@
          </GridPane.margin>
       </TextArea>
       <Label text="Erros:" textFill="aliceblue" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
-      <TextArea fx:id="textErrors" disable="true" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6" />
+      <TextArea fx:id="textErrors" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="6" />
       <Button mnemonicParsing="false" onAction="#compilar" text="Compilar" GridPane.columnIndex="4" GridPane.halignment="RIGHT" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
       <Button mnemonicParsing="false" onAction="#editar" text="Editar" GridPane.columnIndex="4" GridPane.halignment="RIGHT" GridPane.valignment="BOTTOM" />
       <Label fx:id="textFiledPath" prefHeight="17.0" prefWidth="344.0" textFill="aliceblue" GridPane.columnSpan="4" GridPane.valignment="BOTTOM">

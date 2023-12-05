@@ -208,6 +208,11 @@ public class AnalisadorSintatico {
             token = lexical.analyze();
             analisaExpressao();
             desempilhaFimPos();
+
+            if(!copiaSaida.get(0).getLexema().equals("I")) {
+                throw new Exception("Esperava uma expressão que retornasse inteiro");
+            }
+
             geraExpressao();
             if(simbolo.getEndMemoria().charAt(0) == 'L') {
                 gera(-1, "STR", "0","");
@@ -219,7 +224,7 @@ public class AnalisadorSintatico {
         }
     }
 
-    private void desempilhaFimPos() {
+    private void desempilhaFimPos() throws Exception {
         desempilhaPos();
         copiaSaida = saida;
         analisaTipoExpressao();
@@ -305,6 +310,11 @@ public class AnalisadorSintatico {
         token = lexical.analyze();
         analisaExpressao();
         desempilhaFimPos();
+
+        if(!copiaSaida.get(0).getLexema().equals("B")) {
+            throw new Exception("Esperava uma expressão que retornasse booleano");
+        }
+
         geraExpressao();
 
         if (token.getSimbolo().equals("sfaca")) {
@@ -326,6 +336,11 @@ public class AnalisadorSintatico {
         token = lexical.analyze();
         analisaExpressao();
         desempilhaFimPos();
+
+        if(!copiaSaida.get(0).getLexema().equals("B")) {
+            throw new Exception("Esperava uma expressão que retornasse booleano");
+        }
+
         geraExpressao();
 
         int auxrot = rotulo;
@@ -643,7 +658,7 @@ public class AnalisadorSintatico {
         desempilha();
     }
 
-    private boolean analisaTipoExpressao() {
+    private void analisaTipoExpressao() throws Exception {
         PosFixa n1,n2;
         while (copiaSaida.size()>1) {
             for (int i=0; i<copiaSaida.size(); i++) {
@@ -651,7 +666,8 @@ public class AnalisadorSintatico {
                     n1 = copiaSaida.get(i-2);
                     n2 = copiaSaida.get(i-1);
                     if(n1.getTipo() != Tipo.VARIAVEL_INTEIRA && n2.getTipo() != Tipo.VARIAVEL_INTEIRA) {
-                        return false;
+                        throw new Exception("Não foi possivel validar a expressão pois " + copiaSaida.get(i).getLexema()
+                                + " espera que " + n1.getLexema() + " e " + n2.getLexema() + " sejam variaveis inteira");
                     }
                     if (copiaSaida.get(i).getTipo() == Tipo.ARITMETICO) {
                         alteraSaida(i,Tipo.ARITMETICO);
@@ -663,21 +679,22 @@ public class AnalisadorSintatico {
                     n1 = copiaSaida.get(i-2);
                     n2 = copiaSaida.get(i-1);
                     if (n1.getTipo() != Tipo.VARIAVEL_BOOLEANA && n2.getTipo() != Tipo.VARIAVEL_BOOLEANA) {
-                        return false;
+                        throw new Exception("Não foi possivel validar a expressão pois " + copiaSaida.get(i).getLexema()
+                                + " espera que " + n1.getLexema() + " e " + n2.getLexema() + " sejam variaveis booleanas");
                     }
                     alteraSaida(i,Tipo.LOGICO);
                     break;
                 } else if (copiaSaida.get(i).getTipo() == Tipo.UNARIO) {
                     n1 = copiaSaida.get(i-1);
                     if (n1.getTipo() != Tipo.VARIAVEL_INTEIRA) {
-                        return false;
+                        throw new Exception("Não foi possivel validar a expressão pois o operador unario " + copiaSaida.get(i).getLexema()
+                                + " espera que " + n1.getLexema()  + " seja variavel inteira");
                     }
                     alteraSaida(i,Tipo.UNARIO);
                     break;
                 }
             }
         }
-        return true;
     }
 
     private void alteraSaida(int y, Tipo tipo) {
@@ -755,8 +772,8 @@ public class AnalisadorSintatico {
                     case "<" -> gera(-1, "CME", "", "");
                     case "=" -> gera(-1, "CEQ", "", "");
                     case "!=" -> gera(-1, "CDIF", "", "");
-                    case ">=" -> gera(-1, "CMEQ", "", "");
-                    case "<=" -> gera(-1, "CMAQ", "", "");
+                    case "<=" -> gera(-1, "CMEQ", "", "");
+                    case ">=" -> gera(-1, "CMAQ", "", "");
                 }
             } else if (s.getTipo() == Tipo.LOGICO) {
                 switch (s.getLexema()) {

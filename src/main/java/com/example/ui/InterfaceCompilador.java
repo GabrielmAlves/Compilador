@@ -17,7 +17,7 @@ public class InterfaceCompilador extends Application {
         stage.setTitle("Compilador");
         stage.setScene(scene);
         stage.show();
-   //     scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Style.css")).toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Style.css")).toExternalForm());
     }
 
     public static void main(String[] args) {
