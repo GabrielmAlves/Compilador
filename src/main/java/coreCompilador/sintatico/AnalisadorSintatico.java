@@ -218,6 +218,10 @@ public class AnalisadorSintatico {
                     if(copiaSaida.get(0).getTipo() != Tipo.VARIAVEL_BOOLEANA) {
                         throw new Exception("Esperava uma expressão que retornasse booleano");
                     }
+                } else if (copiaSaida.get(0).getTipo() == Tipo.CONSTANTE) {
+                    if(simbolo.getTipo() != Tipo.VARIAVEL_INTEIRA) {
+                        throw new Exception("Esperava uma expressão que retornasse " + simbolo.getTipo());
+                    }
                 } else if(simbolo.getTipo() != copiaSaida.get(0).getTipo()) {
                     throw new Exception("Esperava uma expressão que retornasse " + simbolo.getTipo());
                 }
