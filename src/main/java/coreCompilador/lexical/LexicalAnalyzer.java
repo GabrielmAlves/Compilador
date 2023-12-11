@@ -8,34 +8,34 @@ public class LexicalAnalyzer {
 	private static final Set<Character> operadoresRelacionais = new HashSet<>(Arrays.asList('!', '<', '>', '='));
 	private static final Set<Character> pontuacoes = new HashSet<>(Arrays.asList(';', ',', '(', ')', '.'));
 
-	private Scanner scanner;
-	private String line;
+	private Scanner scanner; // para percorrer o arquivo
+	private String line; // a linha do arquivo em que o scanner esta
 	private int i;	// ponteiro da posição de cada linha/string
 	private Character character;
-	private Token tokinho;
+	private Token tokinho = new Token(); // estrutura de token
 
 	public LexicalAnalyzer(File file) {
 		try{
-			scanner = new Scanner(file);
+			scanner = new Scanner(file); // abre o arquivo
 			i=-1;
 			pegaLinha();
-			character = pegaCaracter();
-		} catch (Exception e){
+			character = pegaCaracter(); // pega primeiro character
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 	}
 
 	public Token analyze() throws Exception {
-		if (character == null) {
+		if (character == null) { // verifica se é fim de arquivo
 			return null;
 		}
 
-		while (character.equals('{') || character.equals(' ') || character.equals('\t')) {
+		while (character.equals('{') || character.equals(' ') || character.equals('\t')) { // verifica se é cometario pou espeços em branco
 			if (character.equals('{')) {
 				trataComentario(i);
 			}
 			character = pegaCaracter();
-			if(character == null) {
+			if(character == null) { // verifica se é fim de arquivo
 				break;
 			}
 		}
@@ -43,6 +43,7 @@ public class LexicalAnalyzer {
 		return tokinho;
 	}
 
+	// função para pular todos os characteres até encontrar um fecha chaves -> }
 	private void trataComentario(int i) throws Exception {
 		character = line.charAt(i);
 		while (!character.equals('}')) {
@@ -52,11 +53,12 @@ public class LexicalAnalyzer {
 
 	private void pegaToken() throws Exception {
 
-		if(character == null) {
+		if(character == null) { // verifica se é fim de arquivo
 			tokinho = null;
 			return;
 		}
 
+		// verifica onde o character se encaixa para fazer seus tratamentos
 		if(Character.isDigit(character)) {
 			// trata digito
 			trataDigito();
@@ -82,6 +84,7 @@ public class LexicalAnalyzer {
 			trataPontuacao();
 
 		} else {
+			// se não for um character invalido lança erro
 			throw new Exception(String.format("Caracter %c inválido",character));
 		}
 	}
@@ -278,6 +281,7 @@ public class LexicalAnalyzer {
 		character = pegaCaracter();
 	}
 
+	// função para verificar se um character esta em uma determinada lista
 	private boolean characterIn(Set<Character> lista, Character character) {
 		for(Character c : lista) {
 			if(c == character) {
@@ -287,7 +291,7 @@ public class LexicalAnalyzer {
 		return false;
 	}
 
-	// função para pegar linhas com conteudo
+	// função para pegar linha com conteudo, ou seja ela pula linhas em branco
 	private boolean pegaLinha() {
 		line = scanner.nextLine();
 		while (line.isBlank()) {
@@ -299,6 +303,7 @@ public class LexicalAnalyzer {
 		return true;
 	}
 
+	// funcao para pegar o proximo character independente de espaços, \n, \t
 	private Character pegaCaracter() throws Exception {
 		Character character;
 		if ((i + 1) >= line.length()) {

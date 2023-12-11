@@ -14,16 +14,16 @@ import java.util.*;
 public class AnalisadorSintatico {
 
     private final String path;
-    private static final String PATH_CODIGO = System.getProperty("user.dir") + "\\src\\main\\java\\coreCompilador\\arquivos\\obj\\cod.obj";
+    private static final String PATH_CODIGO = System.getProperty("user.dir") + "\\src\\main\\java\\coreCompilador\\arquivos\\obj\\cod.obj"; // caminho que gera o arquivo obj
     private final File fileCod = new File(PATH_CODIGO);
     private LexicalAnalyzer lexical;
     private Token token;
-    private Deque<TabelaSimbolos> tabelaSimbolos = new ArrayDeque<>();
-    private Deque<PosFixa> pilhaPos = new ArrayDeque<>();
-    private List<PosFixa> saida = new ArrayList<>();
-    private List<PosFixa> copiaSaida = new ArrayList<>();
-    private int rotulo;
-    private int m = 1;
+    private Deque<TabelaSimbolos> tabelaSimbolos = new ArrayDeque<>(); // pilha da tabela de simbolos
+    private Deque<PosFixa> pilhaPos = new ArrayDeque<>(); // pilha para fazer a conversão da expressão pra pós fixa (pilha em que verificamos as precedencia dos operadores)
+    private List<PosFixa> saida = new ArrayList<>(); // expressão final após fazer a conversão para pós fixa
+    private List<PosFixa> copiaSaida = new ArrayList<>(); // uma lista auxiliar para fazer a validação to tipo da expressão (inteiro ou booleano)
+    private int rotulo; // proximo rotulo disponivel
+    private int m = 1; // proximo index livre na memoria
 
     public AnalisadorSintatico(String PATH) {
         this.path = PATH;
@@ -33,28 +33,28 @@ public class AnalisadorSintatico {
 
         FileWriter fileWriter = new FileWriter(fileCod);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-        bufferedWriter.write("");
+        bufferedWriter.write(""); // para sobrescrever o arquivo a cada novo arquivo compilado
 
         File file = new File(path);
         lexical = new LexicalAnalyzer(file);
-        rotulo = 1;
-        token = lexical.analyze();
+        rotulo = 1; // seta o primeiro rotulo disponivel
+        token = lexical.analyze(); // retorna o token a ser analisado
 
         if(token.getSimbolo().equals("sprograma")){
             gera(-1,"START","","");
             token = lexical.analyze();
             if(token.getSimbolo().equals("sidentificador")) {
                 // semantico
-                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROGRAMA,false,"");
-                tabelaSimbolos.push(simbolo);
+                TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROGRAMA,false,""); // cria nova estrutura para adicionar na tabela de simbolos
+                tabelaSimbolos.push(simbolo); // adiciona na tabela de simbolos
 
                 token = lexical.analyze();
                 if(token.getSimbolo().equals("spontovirgula")){
                     analisaBloco();
                     if(token.getSimbolo().equals("sponto")) {
                         token = lexical.analyze();
-                        if(token == null) {
-                            int n = contaVariaveis();
+                        if(token == null) { // chegou no fim de arquivo, faz o dalloc e hlt
+                            int n = contaVariaveis(); // retorna quantas variaveis serão desalocadas
                             gera(-1,"DALLOC",String.valueOf(m-n),String.valueOf(n));
                             m = m - n;
                             gera(-1,"HLT","","");
@@ -104,11 +104,11 @@ public class AnalisadorSintatico {
     }
 
     private void analisaVariaveis() throws Exception {
-        int contador = 0;
+        int contador = 0; // contador para fazer a alocação das variaveis
         do{
             if (token.getSimbolo().equals("sidentificador")) {
                 // semantico
-                if(!pesquisaDuplicidade(token.getLexema())) {
+                if(!pesquisaDuplicidade(token.getLexema())) { // verifica se essa variavel ja foi declarada no escopo
                     TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.VARIAVEL,false,String.valueOf(m+contador));
                     tabelaSimbolos.push(simbolo);
                     contador++;
@@ -137,6 +137,7 @@ public class AnalisadorSintatico {
         analisaTipo();
     }
 
+    // função para verificar se um determinada variavel ja foi declarada dentro do escopo
     private boolean pesquisaDuplicidade(String lexema) {
         for(TabelaSimbolos simbolo : tabelaSimbolos) {
             if(simbolo.getEscopo()) {
@@ -157,6 +158,7 @@ public class AnalisadorSintatico {
         token = lexical.analyze();
     }
 
+    // função para adicionar o tipo da variavel de acordo com seu lexema
     private void colocaTipoTabela(String lexema) {
         for(TabelaSimbolos simbolo : tabelaSimbolos) {
             if(simbolo.getTipo().equals(Tipo.VARIAVEL)) {
@@ -209,7 +211,7 @@ public class AnalisadorSintatico {
             analisaExpressao();
             desempilhaFimPos();
 
-            if(!copiaSaida.isEmpty()) {
+            if(!copiaSaida.isEmpty()) { // verifica o tipo de atribuicao
                 if (simbolo.getTipo() == Tipo.FUNCAO_INTEIRA) {
                     if(copiaSaida.get(0).getTipo() != Tipo.VARIAVEL_INTEIRA) {
                         throw new Exception("Esperava uma expressão que retornasse inteiro");
@@ -228,7 +230,7 @@ public class AnalisadorSintatico {
             }
 
             geraExpressao();
-            if(simbolo.getEndMemoria().charAt(0) == 'L') {
+            if(simbolo.getEndMemoria().charAt(0) == 'L') { // se for retorno de função, guarda o valor em 0
                 gera(-1, "STR", "0","");
             } else {
                 gera(-1, "STR", simbolo.getEndMemoria(),"");
@@ -238,8 +240,12 @@ public class AnalisadorSintatico {
         }
     }
 
+    // desempilha a pilha no final da conversão para pós fixa, caso haja algum operador la
     private void desempilhaFimPos() throws Exception {
-        desempilhaPos();
+        for (PosFixa p : pilhaPos) {
+            saida.add(p);
+            pilhaPos.pop();
+        }
         copiaSaida = saida;
         analisaTipoExpressao();
     }
@@ -254,7 +260,7 @@ public class AnalisadorSintatico {
             token = lexical.analyze();
             if(token.getSimbolo().equals("sidentificador")){
                 // semantico
-                if (pesquisaDeclVarTabela(token.getLexema())) {
+                if (pesquisaDeclVarTabela(token.getLexema())) { // verifica se a variavel foi declarada
                     TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
                     gera(-1,"RD","","");
                     assert simbolo != null;
@@ -277,6 +283,7 @@ public class AnalisadorSintatico {
         }
     }
 
+    // função que procura se uma variavel foi declarada
     private boolean pesquisaDeclVarTabela(String lexema) {
         for(TabelaSimbolos simbolos : tabelaSimbolos) {
             if (simbolos.getLexema().equals(lexema)) {
@@ -292,10 +299,10 @@ public class AnalisadorSintatico {
             token = lexical.analyze();
             if(token.getSimbolo().equals("sidentificador")){
                 // semantico
-                if (pesquisaDeclVarTabela(token.getLexema())) {
+                if (pesquisaDeclVarTabela(token.getLexema())) { // verifica se a variavel foi declarada
                     TabelaSimbolos simbolo = pesquisaTabela(token.getLexema());
                     assert simbolo != null;
-                    if (simbolo.getEndMemoria().charAt(0) == 'L') {
+                    if (simbolo.getEndMemoria().charAt(0) == 'L') { // verifica se é o retorno de uma função q sera escrito
                         gera(-1,"CALL",simbolo.getEndMemoria(),"");
                         gera(-1,"LDV","0","");
                     } else {
@@ -322,7 +329,7 @@ public class AnalisadorSintatico {
 
     private void analisaEnquanto() throws Exception {
         int auxrot1, auxrot2;
-        auxrot1 = rotulo;
+        auxrot1 = rotulo; // guarda o rotulo para fazer o loop
         gera(rotulo,"NULL","","");
         rotulo = rotulo + 1;
 
@@ -339,15 +346,15 @@ public class AnalisadorSintatico {
         geraExpressao();
 
         if (token.getSimbolo().equals("sfaca")) {
-            auxrot2 = rotulo;
+            auxrot2 = rotulo; // guarda o rotulo para sair do loop
             gera(-1, "JMPF", "L" + rotulo,"");
             rotulo = rotulo + 1;
 
             token = lexical.analyze();
             analisaComandoSimples();
 
-            gera(-1,"JMP", "L" + auxrot1,"");
-            gera(auxrot2,"NULL","","");
+            gera(-1,"JMP", "L" + auxrot1,""); // continuar o loop
+            gera(auxrot2,"NULL","",""); // sair do loop
         } else {
             throw new Exception("Loop não iniciado");
         }
@@ -366,17 +373,17 @@ public class AnalisadorSintatico {
 
         geraExpressao();
 
-        int auxrot = rotulo;
-        int auxrot2 = 0;
-        gera(-1, "JMPF", "L" + rotulo,"");
+        int auxrot = rotulo; // guarda rotulo do senao
+        int auxrot2;
+        gera(-1, "JMPF", "L" + rotulo,""); // se for falso, executa o senao
         rotulo++;
 
         if (token.getSimbolo().equals("sentao")) {
             token = lexical.analyze();
             analisaComandoSimples();
 
-            auxrot2 = rotulo;
-            gera(-1, "JMP", "L" + rotulo,"");
+            auxrot2 = rotulo; // guarda rotulo para não executar o senao
+            gera(-1, "JMP", "L" + rotulo,""); // pula pra não executar o senao
             rotulo++;
 
             gera(auxrot,"NULL","","");
@@ -397,18 +404,11 @@ public class AnalisadorSintatico {
                 token.getSimbolo().equals("sig") || token.getSimbolo().equals("smenor") ||
                 token.getSimbolo().equals("smenorig") || token.getSimbolo().equals("sdif")) {
 
-            PosFixa pos = new PosFixa(token.getLexema(),Tipo.RELACIONAL,4);
+            PosFixa pos = new PosFixa(token.getLexema(),Tipo.RELACIONAL,4); // prepara a estrutura para comparar com a pilha de operadores
             verificaPrecedencia(pos);
 
             token = lexical.analyze();
             analisaExpressaoSimples();
-        }
-    }
-
-    private void desempilhaPos() {
-        for (PosFixa p : pilhaPos) {
-            saida.add(p);
-            pilhaPos.pop();
         }
     }
 
@@ -491,6 +491,7 @@ public class AnalisadorSintatico {
         }
     }
 
+    // função para desempilhar até o fecha parenteses
     private void desempilhaAteParenteses() {
         for(PosFixa s : pilhaPos) {
             if(s.getLexema().equals("(")) {
@@ -502,18 +503,19 @@ public class AnalisadorSintatico {
         }
     }
 
+    // função que verifica a precedencia do operador q esta entrando na pilha, e desempilha os q forem maiores ou iguais
     public void verificaPrecedencia(PosFixa operador) {
-        if(pilhaPos.peek() == null ) {
+        if(pilhaPos.peek() == null ) { // verifica se ta vazia
             pilhaPos.push(operador);
             return;
         }
 
-        if(operador.getPrecedencia() > pilhaPos.peek().getPrecedencia()) {
+        if(operador.getPrecedencia() > pilhaPos.peek().getPrecedencia()) { // se o operador tiver precedencia maior, empilha
             pilhaPos.push(operador);
             return;
         }
 
-        for (PosFixa p : pilhaPos) {
+        for (PosFixa p : pilhaPos) { // enquanto for menor ou igual, desempilha e adiciona na saida
             if(operador.getPrecedencia() <= p.getPrecedencia()) {
                 saida.add(p);
                 pilhaPos.pop();
@@ -526,6 +528,7 @@ public class AnalisadorSintatico {
         pilhaPos.push(operador);
     }
 
+    // função que retorna um simbolo da tabela de simbolos
     private TabelaSimbolos pesquisaTabela(String lexema) {
         for(TabelaSimbolos simbolo : tabelaSimbolos) {
             if (simbolo.getLexema().equals(lexema)) {
@@ -541,8 +544,8 @@ public class AnalisadorSintatico {
         int auxrot = 0, flag;
         flag = 0;
         if(token.getSimbolo().equals("sprocedimento") || token.getSimbolo().equals("sfuncao")){
-            auxrot = rotulo;
-            gera(-1,"JMP", "L" + rotulo,"");
+            auxrot = rotulo; // guarda o inicio dos comandos, para pular declaração de subrotinas
+            gera(-1,"JMP", "L" + rotulo,""); // pula para os comandos
             rotulo++;
             flag = 1;
 
@@ -572,10 +575,10 @@ public class AnalisadorSintatico {
         //semantico
         if (token.getSimbolo().equals("sidentificador")) {
             // semantico
-            if(!pesquisaDeclFuncProcTabela(token.getLexema())) {
+            if(!pesquisaDeclFuncProcTabela(token.getLexema())) { // verifica se o nome do procedimento ja esta em uso
                 TabelaSimbolos simbolo = new TabelaSimbolos(token.getLexema(), Tipo.PROCEDIMENTO, true, "L" + rotulo);
                 tabelaSimbolos.push(simbolo);
-                gera(rotulo,"NULL","","");
+                gera(rotulo,"NULL","",""); // inicio do procedimento
                 rotulo = rotulo + 1;
 
                 token = lexical.analyze();
@@ -598,6 +601,7 @@ public class AnalisadorSintatico {
         desempilha();
     }
 
+    // conta as variaveis ate a marca, que são as que estão dentro do escopo de um procedimento/função/programa
     private int contaVariaveis() {
         int contador = 0;
         for (TabelaSimbolos simbolo : tabelaSimbolos) {
@@ -611,6 +615,7 @@ public class AnalisadorSintatico {
         return contador;
     }
 
+    // desempilha a tabela de simbolos ate achar a marca
     private void desempilha() {
         for (TabelaSimbolos simbolo : tabelaSimbolos) {
             if(simbolo.getEscopo()) {
@@ -621,6 +626,7 @@ public class AnalisadorSintatico {
         }
     }
 
+    // função q verifica se uma função ou procedimento foi declarado na tabela de simbolos
     private boolean pesquisaDeclFuncProcTabela(String lexema) {
         for(TabelaSimbolos simbolo : tabelaSimbolos) {
             if(simbolo.getLexema().equals(lexema)) {
@@ -677,6 +683,7 @@ public class AnalisadorSintatico {
         desempilha();
     }
 
+    // função que altera o lista "copiaSaida" até sobrar somente um elemento, de forma que seja I (inteiro) ou B (booleano)
     private void analisaTipoExpressao() throws Exception {
         PosFixa n1,n2;
 
@@ -731,6 +738,7 @@ public class AnalisadorSintatico {
         }
     }
 
+    // função que altera o lista "copiaSaida" para I (inteiro) ou B (booleano)
     private void alteraSaida(int y, Tipo tipo) {
         List<PosFixa> auxSaida = new ArrayList<>();
         for (int i=0 ; i<copiaSaida.size(); i++) {
@@ -758,6 +766,7 @@ public class AnalisadorSintatico {
         copiaSaida = auxSaida;
     }
 
+    // função que escreve uma nova linha no arquivo obj
     private void gera(int r, String instrucao, String var1, String var2) {
         try {
             FileWriter fileWriter = new FileWriter(fileCod, true);
@@ -767,10 +776,6 @@ public class AnalisadorSintatico {
             if (r != -1) {
                 rot = "L" + r;
             }
-
-            int num1;
-            int num2;
-            int result;
 
             if (!Objects.equals(var2, "")) {
                 bufferedWriter.write(rot + "\t" + instrucao + " " + var1 + "," + var2 + "\n");
@@ -784,6 +789,7 @@ public class AnalisadorSintatico {
         }
     }
 
+    // função que pega a expressao pós fixa (saida) e gera o codigo dela
     private void geraExpressao() throws Exception {
 
         for(PosFixa s : saida) {
