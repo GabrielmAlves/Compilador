@@ -1,0 +1,16 @@
+{comentario
+testeee}
+programa NomePrograma    ;
+var i,teste : int;
+{declaracao de rotinas}
+iniio { principal}
+{comandos da secao principal}
+entao()
+se()
+senao
+enquanto()
+escreva()
+faca
+falso
+procedimento nomeprocedimento;
+fim. { principal}
